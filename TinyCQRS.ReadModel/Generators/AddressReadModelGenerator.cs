@@ -7,7 +7,7 @@ using TinyCQRS.Messages.Events;
 namespace TinyCQRS.ReadModel.Generators
 {
     public class AddressReadModelGenerator :
-        ISubscribeTo<CustomerAddressChanged>
+        IConsume<CustomerAddressChanged>
     {
         public void Process(CustomerAddressChanged @event)
         {

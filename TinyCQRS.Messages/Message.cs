@@ -23,19 +23,11 @@ namespace TinyCQRS.Messages
 
         public Guid CorrelationId { get; set; }
 
-        protected Event(Guid aggregateId) : base(aggregateId)
-        {
-            
-        }
-
-        protected Event() { }
+        protected Event(Guid aggregateId) : base(aggregateId) { }
     }
 
     public abstract class Command : Message
     {
-        protected Command(Guid aggregateId) : base(aggregateId)
-        {
-            
-        }
+        protected Command(Guid aggregateId) : base(aggregateId) { }
     }
 }

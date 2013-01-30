@@ -6,7 +6,6 @@ namespace TinyCQRS.Messages.Events
     {
         public Guid ProductId { get; set; }
 
-        public CustomerAddedProduct() { }
         public CustomerAddedProduct(Guid id, Guid productId) : base(id)
         {
             ProductId = productId;

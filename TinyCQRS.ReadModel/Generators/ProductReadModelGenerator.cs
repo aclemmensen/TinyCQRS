@@ -5,7 +5,7 @@ using TinyCQRS.ReadModel.Model;
 
 namespace TinyCQRS.ReadModel.Generators
 {
-    public class ProductReadModelGenerator : ISubscribeTo<ProductCreated>
+    public class ProductReadModelGenerator : IConsume<ProductCreated>
     {
         private readonly IDtoRepository<ProductDto> _repository;
 

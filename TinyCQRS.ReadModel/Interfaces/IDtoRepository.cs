@@ -7,6 +7,7 @@ namespace TinyCQRS.ReadModel.Interfaces
     {
         T GetById(Guid id);
         IEnumerable<T> GetAll();
+	    IEnumerable<T> Where(Func<T, bool> predicate);
         void Save(T dto);
     }
 }

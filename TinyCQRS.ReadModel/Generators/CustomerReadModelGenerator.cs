@@ -6,10 +6,10 @@ using TinyCQRS.ReadModel.Model;
 namespace TinyCQRS.ReadModel.Generators
 {
     public class CustomerReadModelGenerator : 
-        ISubscribeTo<CustomerCreated>, 
-        ISubscribeTo<CustomerNameChanged>,
-        ISubscribeTo<CustomerAddedProduct>,
-        ISubscribeTo<CustomerAddressChanged>
+        IConsume<CustomerCreated>, 
+        IConsume<CustomerNameChanged>,
+        IConsume<CustomerAddedProduct>,
+        IConsume<CustomerAddressChanged>
     {
         private readonly IDtoRepository<CustomerDto> _customerRepository;
         private readonly IDtoRepository<ProductDto> _productRepository;

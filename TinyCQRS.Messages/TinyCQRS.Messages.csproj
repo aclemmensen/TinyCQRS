@@ -39,7 +39,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IHandler.cs" />
+    <Compile Include="Commands\AddExistingResourceToPage.cs" />
+    <Compile Include="Commands\PageCommands.cs" />
+    <Compile Include="Commands\SiteCommands.cs" />
+    <Compile Include="Events\PageEvents.cs" />
+    <Compile Include="Events\SiteEvents.cs" />
     <Compile Include="ISubscriber.cs" />
     <Compile Include="Events\CustomerAddedProduct.cs" />
     <Compile Include="Events\CustomerAddressChanged.cs" />
@@ -48,10 +52,9 @@
     <Compile Include="Events\ProductCreated.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Shared\ResourceType.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Commands\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

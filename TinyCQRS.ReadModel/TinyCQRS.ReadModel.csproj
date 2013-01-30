@@ -40,8 +40,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Generators\AddressReadModelGenerator.cs" />
+    <Compile Include="Generators\PageReadModelGenerator.cs" />
+    <Compile Include="Generators\SiteReadModelGenerator.cs" />
     <Compile Include="Model\CustomerDto.cs" />
     <Compile Include="Generators\CustomerReadModelGenerator.cs" />
+    <Compile Include="Model\PageDto.cs" />
+    <Compile Include="Model\ResourceDto.cs" />
     <Compile Include="Repositories\DtoRepository.cs" />
     <Compile Include="Interfaces\IDto.cs" />
     <Compile Include="Interfaces\IDtoRepository.cs" />

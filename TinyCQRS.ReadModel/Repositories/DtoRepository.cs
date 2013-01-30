@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using TinyCQRS.ReadModel.Interfaces;
 
 namespace TinyCQRS.ReadModel.Repositories
@@ -8,7 +9,12 @@ namespace TinyCQRS.ReadModel.Repositories
     {
         private readonly Dictionary<Guid,T> _data = new Dictionary<Guid, T>();
 
-        public void Save(T dto)
+	    public IEnumerable<T> Where(Func<T, bool> predicate)
+	    {
+		    return _data.Values.Where(predicate);
+	    }
+
+	    public void Save(T dto)
         {
             _data[dto.Id] = dto;
         }

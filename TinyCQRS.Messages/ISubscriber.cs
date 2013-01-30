@@ -1,11 +1,11 @@
 ﻿namespace TinyCQRS.Messages
 {
-    public interface ISubscriber
-    {
-        
-    }
+	public interface IConsume
+	{
+		
+	}
 
-    public interface ISubscribeTo<in T> : ISubscriber where T : Event
+    public interface IConsume<in T> : IConsume where T : Event
     {
         void Process(T @event);
     }

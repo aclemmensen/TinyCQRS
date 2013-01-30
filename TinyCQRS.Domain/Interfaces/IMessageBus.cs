@@ -4,7 +4,7 @@ namespace TinyCQRS.Domain.Interfaces
 {
     public interface IMessageBus
     {
-        void Subscribe(ISubscriber subscriber);
+		void Subscribe(params IConsume[] subscribers);
 
         void Notify(Event @event);
     }
