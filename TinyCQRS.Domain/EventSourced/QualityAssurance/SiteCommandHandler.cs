@@ -5,11 +5,12 @@ namespace TinyCQRS.Domain.EventSourced.QualityAssurance
 {
 	public class SiteCommandHandler :
 		IHandle<CreateNewSite>,
-		IHandle<AddPageToSite>
+		IHandle<CreateNewPage>,
+		IHandle<UpdatePageContent>
 	{
-		private readonly IEventedRepository<SiteAggregate> _repository;
+		private readonly IRepository<SiteAggregate> _repository;
 
-		public SiteCommandHandler(IEventedRepository<SiteAggregate> repository)
+		public SiteCommandHandler(IRepository<SiteAggregate> repository)
 		{
 			_repository = repository;
 		}
@@ -20,11 +21,17 @@ namespace TinyCQRS.Domain.EventSourced.QualityAssurance
 			_repository.Save(site);
 		}
 
-		public void Handle(AddPageToSite command)
+		public void Handle(CreateNewPage command)
 		{
 			var site = _repository.GetById(command.AggregateId);
-			site.AddPage(command.PageId);
+			site.AddNewPage(command.PageId, command.Url, command.Content);
+			_repository.Save(site);
+		}
 
+		public void Handle(UpdatePageContent command)
+		{
+			var site = _repository.GetById(command.AggregateId);
+			site.UpdatePageContent(command.PageId, command.NewContent);
 			_repository.Save(site);
 		}
 	}

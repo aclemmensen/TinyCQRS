@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using TinyCQRS.Domain;
 using TinyCQRS.Domain.Interfaces;
 
 namespace TinyCQRS.Infrastructure.Persistence
 {
-    public class EventedRepository<T> : IEventedRepository<T> where T : AggregateRoot, new()
+    public class EventedRepository<T> : IRepository<T> where T : AggregateRoot, new()
     {
+	    private readonly Dictionary<Guid,AggregateRoot> _cache = new Dictionary<Guid, AggregateRoot>();
+
         private readonly IEventStore _eventStore;
 
         public EventedRepository(IEventStore eventStore)
@@ -16,16 +19,21 @@ namespace TinyCQRS.Infrastructure.Persistence
 
         public T GetById(Guid id)
         {
-            var aggregate = new T();
-            aggregate.LoadFrom(_eventStore.GetEventsFor(id));
-            return aggregate;
+			if (!_cache.ContainsKey(id))
+			{
+				var aggregate = new T();
+				aggregate.LoadFrom(_eventStore.GetEventsFor(id));
+				_cache[id] = aggregate;
+			}
+            
+            return _cache[id] as T;
         }
 
-        public void Save(AggregateRoot aggregate, int? expectedVersion = null)
+        public void Save(T aggregate, int? expectedVersion = null)
         {
             int exp = expectedVersion ?? aggregate.Version;
 
-            var lastEvent = _eventStore.GetEventsFor(aggregate.Id).LastOrDefault();
+	        var lastEvent = _eventStore.GetLastEventFor(aggregate.Id);
             if (lastEvent != null && exp != 0 && lastEvent.Version != exp)
             {
                 throw new ConcurrencyException(string.Format(
@@ -39,10 +47,13 @@ namespace TinyCQRS.Infrastructure.Persistence
             {
                 e.Version = ++i;
                 aggregate.Version = e.Version;
-                _eventStore.StoreEvent(aggregate.Id, e);
+                _eventStore.StoreEvent(e);
             }
 
             aggregate.ClearPendingEvents();
+
+	        _cache.Remove(aggregate.Id);
+	        _cache[aggregate.Id] = aggregate;
         }
     }
 }

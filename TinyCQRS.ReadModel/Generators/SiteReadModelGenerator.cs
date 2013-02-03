@@ -6,13 +6,12 @@ using TinyCQRS.ReadModel.Model;
 namespace TinyCQRS.ReadModel.Generators
 {
 	public class SiteReadModelGenerator : 
-		IConsume<SiteCreatedEvent>,
-		IConsume<PageAddedEvent>
+		IConsume<SiteCreatedEvent>
 	{
-		private readonly IDtoRepository<SiteDto> _siteRepository;
-		private readonly IDtoRepository<PageDto> _pageRepository;
+		private readonly IReadModelRepository<Site> _siteRepository;
+		private readonly IReadModelRepository<Page> _pageRepository;
 
-		public SiteReadModelGenerator(IDtoRepository<SiteDto> siteRepository, IDtoRepository<PageDto> pageRepository)
+		public SiteReadModelGenerator(IReadModelRepository<Site> siteRepository, IReadModelRepository<Page> pageRepository)
 		{
 			_siteRepository = siteRepository;
 			_pageRepository = pageRepository;
@@ -20,24 +19,26 @@ namespace TinyCQRS.ReadModel.Generators
 
 		public void Process(SiteCreatedEvent @event)
 		{
-			var site = new SiteDto
+			var site = new Site
 			{
 				Id = @event.AggregateId,
 				Name = @event.Name,
 				Root = @event.Root
 			};
 
-			_siteRepository.Save(site);
+			_siteRepository.Add(site);
+			//_siteRepository.Commit();
 		}
 
-		public void Process(PageAddedEvent @event)
-		{
-			var site = _siteRepository.GetById(@event.AggregateId);
-			var page = _pageRepository.GetById(@event.PageId);
+		//public void Process(PageAddedEvent @event)
+		//{
+		//	var site = _siteRepository.Get(@event.AggregateId);
+		//	var page = _pageRepository.Get(@event.PageId);
 			
-			site.Pages.Add(page);
+		//	site.Pages.Add(page);
 
-			_siteRepository.Save(site);
-		}
+		//	_siteRepository.Update(site);
+		//	_siteRepository.Commit();
+		//}
 	}
 }

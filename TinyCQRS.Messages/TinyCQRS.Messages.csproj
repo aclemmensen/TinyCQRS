@@ -39,17 +39,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\AddExistingResourceToPage.cs" />
-    <Compile Include="Commands\PageCommands.cs" />
+    <Compile Include="Commands\CrawlCommands.cs" />
     <Compile Include="Commands\SiteCommands.cs" />
-    <Compile Include="Events\PageEvents.cs" />
+    <Compile Include="Events\CrawlEvents.cs" />
     <Compile Include="Events\SiteEvents.cs" />
     <Compile Include="ISubscriber.cs" />
-    <Compile Include="Events\CustomerAddedProduct.cs" />
-    <Compile Include="Events\CustomerAddressChanged.cs" />
-    <Compile Include="Events\CustomerCreated.cs" />
-    <Compile Include="Events\CustomerNameChanged.cs" />
-    <Compile Include="Events\ProductCreated.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Shared\ResourceType.cs" />

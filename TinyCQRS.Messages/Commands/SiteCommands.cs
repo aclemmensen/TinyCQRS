@@ -14,13 +14,31 @@ namespace TinyCQRS.Messages.Commands
 		}
 	}
 
-	public class AddPageToSite : Command
+	public class CreateNewPage : Command
 	{
-		public Guid PageId { get; private set; }
+		public Guid PageId { get; set; }
+		public string Url { get; private set; }
+		public string Content { get; private set; }
 
-		public AddPageToSite(Guid siteId, Guid pageId) : base(siteId)
+		public CreateNewPage(Guid siteId, Guid pageId, string url, string content)
+			: base(siteId)
 		{
 			PageId = pageId;
+			Url = url;
+			Content = content;
+		}
+	}
+
+	public class UpdatePageContent : Command
+	{
+		public Guid PageId { get; set; }
+		public string NewContent { get; private set; }
+
+		public UpdatePageContent(Guid siteId, Guid pageId, string newContent)
+			: base(siteId)
+		{
+			PageId = pageId;
+			NewContent = newContent;
 		}
 	}
 }

@@ -7,7 +7,8 @@ namespace TinyCQRS.Domain.EventSourced.QualityAssurance
 {
 	public class SiteAggregate : AggregateRoot,
 		IApply<SiteCreatedEvent>,
-		IApply<PageAddedEvent>
+		IApply<PageCreated>,
+		IApply<PageContentChanged>
 	{
 		private string _root;
 		private string _name;
@@ -20,9 +21,19 @@ namespace TinyCQRS.Domain.EventSourced.QualityAssurance
 			ApplyChange(new SiteCreatedEvent(id, name, root));
 		}
 
-		public void AddPage(Guid pageId)
+		public void AddNewPage(Guid pageId, string url, string content)
 		{
-			ApplyChange(new PageAddedEvent(_id, pageId));
+			if (_pages.Contains(pageId))
+			{
+				throw new InvalidOperationException("Page already exists on site");
+			}
+
+			ApplyChange(new PageCreated(_id, pageId, url, content));
+		}
+
+		public void UpdatePageContent(Guid pageId, string newContent)
+		{
+			ApplyChange(new PageContentChanged(pageId, newContent, DateTime.UtcNow));
 		}
 
 		public void Apply(SiteCreatedEvent @event)
@@ -32,14 +43,14 @@ namespace TinyCQRS.Domain.EventSourced.QualityAssurance
 			_root = @event.Root;
 		}
 
-		public void Apply(PageAddedEvent @event)
+		public void Apply(PageCreated @event)
 		{
-			if (_pages.Contains(@event.PageId))
-			{
-				throw new ApplicationException("Page already exists");
-			}
 
-			_pages.Add(@event.PageId);
+		}
+
+		public void Apply(PageContentChanged @event)
+		{
+			
 		}
 	}
 }

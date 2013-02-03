@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
     <Reference Include="Esent.Collections">
       <HintPath>..\packages\ManagedEsent.1.8.1\lib\net40\Esent.Collections.dll</HintPath>
     </Reference>
@@ -44,7 +47,9 @@
       <HintPath>..\packages\ReflectionMagic.1.1\lib\net40\ReflectionMagic.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.Entity" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -53,9 +58,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConcurrencyException.cs" />
+    <Compile Include="Database\EventContext.cs" />
+    <Compile Include="Migrations\201301311432262_Init.cs" />
+    <Compile Include="Migrations\201301311432262_Init.Designer.cs">
+      <DependentUpon>201301311432262_Init.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Persistence\DispatchingEventStore.cs" />
+    <Compile Include="Persistence\EfEventStore.cs" />
     <Compile Include="Persistence\EsentEventStore.cs" />
+    <Compile Include="Persistence\EventEnvelope.cs" />
     <Compile Include="Persistence\InMemoryMessageBus.cs" />
+    <Compile Include="Persistence\SqlEventStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Persistence\InMemoryEventStore.cs" />
     <Compile Include="Persistence\EventedRepository.cs" />
@@ -69,9 +83,19 @@
       <Project>{01bfd3a7-b73a-4de4-92af-d7cdc801ee2d}</Project>
       <Name>TinyCQRS.Messages</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TinyCQRS.ReadModel\TinyCQRS.ReadModel.csproj">
+      <Project>{55cbef31-2765-4935-90fc-29a4078afe96}</Project>
+      <Name>TinyCQRS.ReadModel</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201301311432262_Init.resx">
+      <DependentUpon>201301311432262_Init.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

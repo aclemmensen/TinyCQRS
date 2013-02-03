@@ -4,7 +4,7 @@ namespace TinyCQRS.Messages
 {
     public abstract class Message
     {
-        public Guid AggregateId { get; protected set; }
+        public Guid AggregateId { get; set; }
 
         protected Message()
         {

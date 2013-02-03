@@ -30,8 +30,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.Entity" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -39,18 +44,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Generators\AddressReadModelGenerator.cs" />
+    <Compile Include="Generators\CrawlRunReadModelGenerator.cs" />
     <Compile Include="Generators\PageReadModelGenerator.cs" />
     <Compile Include="Generators\SiteReadModelGenerator.cs" />
-    <Compile Include="Model\CustomerDto.cs" />
-    <Compile Include="Generators\CustomerReadModelGenerator.cs" />
-    <Compile Include="Model\PageDto.cs" />
-    <Compile Include="Model\ResourceDto.cs" />
-    <Compile Include="Repositories\DtoRepository.cs" />
+    <Compile Include="Infrastructure\EfReadModelRepository.cs" />
+    <Compile Include="Infrastructure\InMemoryReadModelRepository.cs" />
+    <Compile Include="Infrastructure\ReadModelContext.cs" />
+    <Compile Include="Migrations\201301311949345_Init.cs" />
+    <Compile Include="Migrations\201301311949345_Init.Designer.cs">
+      <DependentUpon>201301311949345_Init.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Model\CrawlJob.cs" />
+    <Compile Include="Model\Page.cs" />
     <Compile Include="Interfaces\IDto.cs" />
-    <Compile Include="Interfaces\IDtoRepository.cs" />
-    <Compile Include="Model\ProductDto.cs" />
-    <Compile Include="Generators\ProductReadModelGenerator.cs" />
+    <Compile Include="Interfaces\IReadModelRepository.cs" />
+    <Compile Include="Model\Site.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -58,6 +67,15 @@
       <Project>{01bfd3a7-b73a-4de4-92af-d7cdc801ee2d}</Project>
       <Name>TinyCQRS.Messages</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201301311949345_Init.resx">
+      <DependentUpon>201301311949345_Init.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

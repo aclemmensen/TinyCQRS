@@ -18,7 +18,12 @@ namespace TinyCQRS.Infrastructure.Persistence
 
         public void Dispose()
         {
-            _eventStore.Dispose();
+	        var disposable = _eventStore as IDisposable;
+			
+			if (disposable != null)
+			{
+				disposable.Dispose();
+			}
         }
 
         public IEnumerable<Event> GetEventsFor(Guid id)
@@ -26,9 +31,14 @@ namespace TinyCQRS.Infrastructure.Persistence
             return _eventStore.GetEventsFor(id);
         }
 
-        public void StoreEvent(Guid id, Event @event)
+	    public Event GetLastEventFor(Guid id)
+	    {
+		    return _eventStore.GetLastEventFor(id);
+	    }
+
+	    public void StoreEvent(Event @event)
         {
-            _eventStore.StoreEvent(id, @event);
+            _eventStore.StoreEvent(@event);
             _bus.Notify(@event);
         }
     }

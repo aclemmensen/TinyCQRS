@@ -9,7 +9,7 @@ using TinyCQRS.Messages;
 
 namespace TinyCQRS.Infrastructure.Persistence
 {
-    public class EsentEventStore : IEventStore
+    public class EsentEventStore : IEventStore, IDisposable
     {
         private readonly string _foldername;
         private readonly Dictionary<Guid, PersistentDictionary<int,string>> _storage;
@@ -39,15 +39,20 @@ namespace TinyCQRS.Infrastructure.Persistence
             return data;
         }
 
-        public void StoreEvent(Guid id, Event @event)
+		public Event GetLastEventFor(Guid id)
+		{
+			return GetEventsFor(id).LastOrDefault();
+		}
+
+        public void StoreEvent(Event @event)
         {
             DisposeGuard();
 
             PersistentDictionary<int, string> events;
 
-            if (!_storage.TryGetValue(id, out events))
+            if (!_storage.TryGetValue(@event.AggregateId, out events))
             {
-                events = CreateFor(id);
+				events = CreateFor(@event.AggregateId);
             }
 
             events[@event.Version] = Serialize(@event);

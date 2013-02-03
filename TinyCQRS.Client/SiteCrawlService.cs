@@ -11,15 +11,21 @@ namespace TinyCQRS.Client
 	public class SiteCrawlService : ISiteCrawlService
 	{
 		private readonly SiteCommandHandler _siteHandler;
-		private readonly PageCommandHandler _pageHandler;
-		private readonly IDtoRepository<SiteDto> _siteRepository;
+		private readonly CrawlCommandHandler _crawlHandler;
+		private readonly IReadModelRepository<Site> _siteRepository;
+		private readonly IReadModelRepository<CrawlJob> _crawlRepository;
 
-		public SiteCrawlService(SiteCommandHandler siteHandler, PageCommandHandler pageHandler, IDtoRepository<SiteDto> siteRepository)
+		public SiteCrawlService(
+			SiteCommandHandler siteHandler, 
+			CrawlCommandHandler crawlHandler, 
+			IReadModelRepository<Site> siteRepository,
+			IReadModelRepository<CrawlJob> crawlRepository)
 		{
 			_siteHandler = siteHandler;
-			_pageHandler = pageHandler;
+			_crawlHandler = crawlHandler;
 
 			_siteRepository = siteRepository;
+			_crawlRepository = crawlRepository;
 		}
 
 		#region WRITE
@@ -29,34 +35,55 @@ namespace TinyCQRS.Client
 			_siteHandler.Handle(new CreateNewSite(id, name, root));
 		}
 
-		public void AddNewPage(Guid siteId, Guid pageId, string url, string content)
+		public void StartCrawl(Guid crawlId, Guid siteId)
 		{
-			_pageHandler.Handle(new CreatePage(pageId, url, content));
-			_siteHandler.Handle(new AddPageToSite(siteId, pageId));
+			_crawlHandler.Handle(new StartCrawl(crawlId, siteId, DateTime.UtcNow));
 		}
 
-		public void UpdatePageContent(Guid siteId, Guid pageId, string newContent)
+		public void AddNewPage(Guid crawlId, Guid pageId, string url, string content)
 		{
-			_pageHandler.Handle(new UpdatePageContent(pageId, newContent));
+			var crawl = _crawlRepository.Get(crawlId);
+
+			_siteHandler.Handle(new CreateNewPage(crawl.SiteId, pageId, url, content));
+			RegisterCheck(crawlId, pageId);
+		}
+
+		public void UpdatePageContent(Guid crawlId, Guid pageId, string newContent)
+		{
+			var crawl = _crawlRepository.Get(crawlId);
+			_siteHandler.Handle(new UpdatePageContent(crawl.SiteId, pageId, newContent));
+			RegisterCheck(crawlId, pageId);
+		}
+
+		public void PageCheckedWithoutChanges(Guid crawlId, Guid pageId, DateTime timeOfCheck)
+		{
+			RegisterCheck(crawlId, pageId);
+		}
+
+		private void RegisterCheck(Guid crawlId, Guid pageId)
+		{
+			_crawlHandler.Handle(new RegisterCheck(crawlId, pageId, DateTime.UtcNow));
 		}
 
 		#endregion
 
 		#region READ
 
-		public SiteDto GetSite(Guid siteId)
+		public Site GetSite(Guid siteId)
 		{
-			return _siteRepository.GetById(siteId);
+			return _siteRepository.Get(siteId);
 		}
 
-		public IEnumerable<PageDto> GetPagesFor(Guid siteId)
+		public IEnumerable<Page> GetPagesFor(Guid siteId)
 		{
-			return _siteRepository.GetById(siteId).Pages;
+			return _siteRepository.Get(siteId).Pages;
 		}
 
-		public CrawlSpec GetCrawlInfoFor(Guid siteId)
+		public CrawlSpec GetCrawlInfoFor(Guid crawlId)
 		{
-			return new CrawlSpec(_siteRepository.GetById(siteId));
+			var crawl = _crawlRepository.Get(crawlId);
+
+			return new CrawlSpec(crawlId, crawl.Site);
 		}
 
 		#endregion
@@ -64,14 +91,17 @@ namespace TinyCQRS.Client
 
 	public class CrawlSpec
 	{
+		public Guid CrawlId { get; set; }
+
 		public Guid SiteId { get; set; }
 		public string Root { get; set; }
 
 		private readonly List<PageInfo> _pageInfo;
 		public IEnumerable<PageInfo> Pages { get { return _pageInfo; } }
 
-		public CrawlSpec(SiteDto site)
+		public CrawlSpec(Guid crawlId, Site site)
 		{
+			CrawlId = crawlId;
 			SiteId = site.Id;
 			Root = site.Root;
 

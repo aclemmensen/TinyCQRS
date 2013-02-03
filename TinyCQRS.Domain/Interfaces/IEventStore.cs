@@ -4,9 +4,10 @@ using TinyCQRS.Messages;
 
 namespace TinyCQRS.Domain.Interfaces
 {
-    public interface IEventStore : IDisposable
+    public interface IEventStore
     {
         IEnumerable<Event> GetEventsFor(Guid id);
-        void StoreEvent(Guid id, Event @event);
+	    Event GetLastEventFor(Guid id);
+        void StoreEvent(Event @event);
     }
 }

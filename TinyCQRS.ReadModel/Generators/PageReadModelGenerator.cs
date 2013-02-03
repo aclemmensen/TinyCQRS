@@ -8,43 +8,49 @@ namespace TinyCQRS.ReadModel.Generators
 	public class PageReadModelGenerator :
 		IConsume<PageCreated>,
 		IConsume<PageContentChanged>,
-		IConsume<ResourceAdded>
+		IConsume<PageChecked>
 	{
-		private readonly IDtoRepository<PageDto> _repository;
-		private readonly IDtoRepository<ResourceDto> _resourceRepository;
+		private readonly IReadModelRepository<Page> _pages;
 
-		public PageReadModelGenerator(IDtoRepository<PageDto> repository, IDtoRepository<ResourceDto> resourceRepository)
+		public PageReadModelGenerator(IReadModelRepository<Page> pages)
 		{
-			_repository = repository;
-			_resourceRepository = resourceRepository;
+			_pages = pages;
 		}
 
 		public void Process(PageCreated @event)
 		{
-			var page = new PageDto(@event.AggregateId)
+			var page = new Page
 			{
+				Id = @event.PageId,
 				Url = @event.Url,
-				Content = @event.Content
+				Content = @event.Content,
+				SiteId = @event.AggregateId
 			};
 
-			_repository.Save(page);
-		}
-
-		public void Process(ResourceAdded @event)
-		{
-			var page = _repository.GetById(@event.AggregateId);
-			var resource = _resourceRepository.GetById(@event.ResourceId);
-
-			page.Resources.Add(resource);
-
-			_repository.Save(page);
+			_pages.Add(page);
+			_pages.Commit();
 		}
 
 		public void Process(PageContentChanged @event)
 		{
-			var page = _repository.GetById(@event.AggregateId);
+			var page = _pages.Get(@event.AggregateId);
 			page.Content = @event.Content;
-			_repository.Save(page);
+			_pages.Add(page);
+			_pages.Commit();
+		}
+
+		public void Process(PageChecked @event)
+		{
+			var page = _pages.Get(@event.PageId);
+			
+			if (!page.FirstSeen.HasValue)
+			{
+				page.FirstSeen = @event.TimeOfCheck;
+			}
+
+			page.LastChecked = @event.TimeOfCheck;
+			
+			_pages.Commit();
 		}
 	}
 }

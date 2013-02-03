@@ -6,7 +6,7 @@ using TinyCQRS.Messages;
 
 namespace TinyCQRS.Infrastructure.Persistence
 {
-    public class InMemoryEventStore : IEventStore
+    public class InMemoryEventStore : IEventStore, IDisposable
     {
         private readonly Dictionary<Guid,List<Event>> _events = new Dictionary<Guid, List<Event>>();
 
@@ -19,13 +19,18 @@ namespace TinyCQRS.Infrastructure.Persistence
                 : new List<Event>();
         }
 
-        public void StoreEvent(Guid id, Event @event)
+		public Event GetLastEventFor(Guid id)
+		{
+			return GetEventsFor(id).LastOrDefault();
+		}
+
+        public void StoreEvent(Event @event)
         {
             List<Event> events;
-            if (!_events.TryGetValue(id, out events))
+            if (!_events.TryGetValue(@event.AggregateId, out events))
             {
-                _events[id] = new List<Event>();
-                events = _events[id];
+                _events[@event.AggregateId] = new List<Event>();
+				events = _events[@event.AggregateId];
             }
 
             events.Add(@event);
