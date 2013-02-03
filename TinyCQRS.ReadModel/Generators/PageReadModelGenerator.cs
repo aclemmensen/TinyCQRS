@@ -19,13 +19,11 @@ namespace TinyCQRS.ReadModel.Generators
 
 		public void Process(PageCreated @event)
 		{
-			var page = new Page
-			{
-				Id = @event.PageId,
-				Url = @event.Url,
-				Content = @event.Content,
-				SiteId = @event.AggregateId
-			};
+			var page = _pages.Create();
+			page.Id = @event.PageId;
+			page.Url = @event.Url;
+			page.Content = @event.Content;
+			page.SiteId = @event.AggregateId;
 
 			_pages.Add(page);
 			_pages.Commit();

@@ -17,5 +17,7 @@ namespace TinyCQRS.ReadModel.Interfaces
 	    void Update(T dto);
 
 	    void Commit();
+
+	    T Create();
     }
 }

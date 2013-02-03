@@ -10,13 +10,21 @@ namespace TinyCQRS.Infrastructure.Persistence
     {
         private readonly Dictionary<Guid,List<Event>> _events = new Dictionary<Guid, List<Event>>();
 
-        public IEnumerable<Event> GetEventsFor(Guid id)
-        {
-            List<Event> events;
+	    public int Processed { get { return _processed; } }
+	    private int _processed;
 
-            return _events.TryGetValue(id, out events) 
-                ? events.OrderBy(x => x.Version).ToList() 
-                : new List<Event>();
+	    public IEnumerable<Event> GetEventsFor(Guid id)
+        {
+			var events = new List<Event>();
+
+            if (_events.ContainsKey(id))
+            {
+	            events = _events[id];
+            }
+
+		    Console.WriteLine("Fetching {0} events", events.Count);
+
+		    return events;
         }
 
 		public Event GetLastEventFor(Guid id)
@@ -26,14 +34,14 @@ namespace TinyCQRS.Infrastructure.Persistence
 
         public void StoreEvent(Event @event)
         {
-            List<Event> events;
-            if (!_events.TryGetValue(@event.AggregateId, out events))
+	        _processed++;
+
+            if (!_events.ContainsKey(@event.AggregateId))
             {
                 _events[@event.AggregateId] = new List<Event>();
-				events = _events[@event.AggregateId];
             }
 
-            events.Add(@event);
+            _events[@event.AggregateId].Add(@event);
         }
 
         public void Dispose()

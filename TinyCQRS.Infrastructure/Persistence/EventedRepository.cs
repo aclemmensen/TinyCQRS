@@ -8,26 +8,26 @@ namespace TinyCQRS.Infrastructure.Persistence
 {
     public class EventedRepository<T> : IRepository<T> where T : AggregateRoot, new()
     {
-	    private readonly Dictionary<Guid,AggregateRoot> _cache = new Dictionary<Guid, AggregateRoot>();
-
         private readonly IEventStore _eventStore;
+	    private readonly ICache<AggregateRoot> _cache;
 
-        public EventedRepository(IEventStore eventStore)
+	    public EventedRepository(IEventStore eventStore, ICache<AggregateRoot> cache)
         {
-            _eventStore = eventStore;
+	        _eventStore = eventStore;
+	        _cache = cache;
         }
 
-        public T GetById(Guid id)
-        {
-			if (!_cache.ContainsKey(id))
-			{
+	    public T GetById(Guid id)
+	    {
+		    return _cache.Get(id, () =>
+		    {
+				Console.WriteLine("Getting aggregate {0} id {1}", typeof(T).Name, id);
+
 				var aggregate = new T();
 				aggregate.LoadFrom(_eventStore.GetEventsFor(id));
-				_cache[id] = aggregate;
-			}
-            
-            return _cache[id] as T;
-        }
+				return aggregate;
+		    }) as T;
+	    }
 
         public void Save(T aggregate, int? expectedVersion = null)
         {
@@ -52,8 +52,7 @@ namespace TinyCQRS.Infrastructure.Persistence
 
             aggregate.ClearPendingEvents();
 
-	        _cache.Remove(aggregate.Id);
-	        _cache[aggregate.Id] = aggregate;
+	        _cache.Set(aggregate.Id, aggregate);
         }
     }
 }

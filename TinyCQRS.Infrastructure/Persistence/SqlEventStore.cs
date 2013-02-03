@@ -10,7 +10,9 @@ namespace TinyCQRS.Infrastructure.Persistence
 	public class SqlEventStore : IEventStore
 	{
 		private readonly string _connstr;
-		private Dictionary<Guid,List<Event>> _cache = new Dictionary<Guid, List<Event>>();
+
+		public int Processed { get { return _processed; } }
+		private int _processed;
 
 		public SqlEventStore(string connstr)
 		{
@@ -19,31 +21,18 @@ namespace TinyCQRS.Infrastructure.Persistence
 
 		public IEnumerable<Event> GetEventsFor(Guid id)
 		{
-			if (!_cache.ContainsKey(id))
-			{
-				var result = Query(
-					"SELECT * FROM EventEnvelopes WHERE AggregateId = @id ORDER BY Version ASC",
-					EventFactory,
-					new Dictionary<string, object> { { "id", id } });
-
-				_cache.Add(id, new List<Event>(result.Select(x => x.Event)));
-			}
-
-			return _cache[id];
+			return GetEventCollectionFor(id);
 		}
 
 		public Event GetLastEventFor(Guid id)
 		{
-			if (!_cache.ContainsKey(id))
-			{
-				GetEventsFor(id);
-			}
-			
-			return _cache[id].LastOrDefault();
+			return GetEventCollectionFor(id).LastOrDefault();
 		}
 
 		public void StoreEvent(Event @event)
 		{
+			_processed++;
+
 			var envelope = new EventEnvelope(@event);
 
 			if (envelope.AggregateId == Guid.Empty)
@@ -68,10 +57,17 @@ namespace TinyCQRS.Infrastructure.Persistence
 				throw new ApplicationException("Event storage did not succeed");
 			}
 
-			if (_cache.ContainsKey(@event.AggregateId))
-			{
-				_cache[@event.AggregateId].Add(@event);
-			}
+		}
+
+		private IList<Event> GetEventCollectionFor(Guid id)
+		{
+			return 
+				Query(
+					"SELECT * FROM EventEnvelopes WHERE AggregateId = @id ORDER BY Version ASC",
+					EventFactory,
+					new Dictionary<string, object> { { "id", id } })
+					.Select(x => x.Event)
+					.ToList();
 		}
 
 		private static EventEnvelope EventFactory(IReadOnlyDictionary<string, object> data)
@@ -87,7 +83,7 @@ namespace TinyCQRS.Infrastructure.Persistence
 			};
 		}
 
-		private SqlCommand CreateCommand(SqlConnection conn, string statement, Dictionary<string,object> parameters = null)
+		private static SqlCommand CreateCommand(SqlConnection conn, string statement, Dictionary<string,object> parameters = null)
 		{
 			var cmd = conn.CreateCommand();
 			cmd.CommandText = statement;
@@ -111,9 +107,12 @@ namespace TinyCQRS.Infrastructure.Persistence
 			using (var cmd = CreateCommand(conn, statement, parameters))
 			using (var reader = cmd.ExecuteReader())
 			{
+				var count = 0;
+
 				while (reader.Read())
 				{
 					var row = new Dictionary<string, object>();
+					count++;
 
 					for (var i = 0; i < reader.FieldCount; i++)
 					{
@@ -122,6 +121,8 @@ namespace TinyCQRS.Infrastructure.Persistence
 
 					yield return factory(row);
 				}
+
+				Console.WriteLine("Fetched {0} rows", count);
 			}
 		}
 
@@ -130,7 +131,8 @@ namespace TinyCQRS.Infrastructure.Persistence
 			using (var conn = new SqlConnection(_connstr))
 			using (var cmd = CreateCommand(conn, statement, parameters))
 			{
-				return cmd.ExecuteNonQuery();
+				var count = cmd.ExecuteNonQuery();
+				return count;
 			}
 		}
 	}

@@ -39,13 +39,11 @@ namespace TinyCQRS.ReadModel.Generators
 		{
 			var site = _sites.Get(@event.SiteId);
 
-			var crawl = new CrawlJob
-			{
-				Id = @event.AggregateId,
-				Site = site,
-				SiteId = site.Id,
-				StartTime = @event.StartTime
-			};
+			var crawl = _crawls.Create();
+			crawl.Id = @event.AggregateId;
+			crawl.Site = site;
+			crawl.SiteId = site.Id;
+			crawl.StartTime = @event.StartTime;
 
 			_crawls.Add(crawl);
 

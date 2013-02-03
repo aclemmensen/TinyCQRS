@@ -20,4 +20,17 @@ namespace TinyCQRS.Client
 			Trace.Fail(string.Format(message, parameters));
 		}
 	}
+
+	public class NullLogger : ILogger
+	{
+		public void Log(string message, params object[] parameters)
+		{
+			
+		}
+
+		public void Fail(string message, params object[] parameters)
+		{
+			
+		}
+	}
 }

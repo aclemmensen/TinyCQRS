@@ -14,6 +14,8 @@ namespace TinyCQRS.Infrastructure.Persistence
         private readonly string _foldername;
         private readonly Dictionary<Guid, PersistentDictionary<int,string>> _storage;
         private bool _disposed;
+		
+		public int Processed { get; private set; }
 
         public EsentEventStore(string foldername)
         {
@@ -21,7 +23,8 @@ namespace TinyCQRS.Infrastructure.Persistence
             _storage = new Dictionary<Guid, PersistentDictionary<int, string>>();
         }
 
-        public IEnumerable<Event> GetEventsFor(Guid id)
+
+	    public IEnumerable<Event> GetEventsFor(Guid id)
         {
             DisposeGuard();
 
@@ -47,6 +50,7 @@ namespace TinyCQRS.Infrastructure.Persistence
         public void StoreEvent(Event @event)
         {
             DisposeGuard();
+			Processed++;
 
             PersistentDictionary<int, string> events;
 

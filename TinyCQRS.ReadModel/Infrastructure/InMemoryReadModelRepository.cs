@@ -30,6 +30,11 @@ namespace TinyCQRS.ReadModel.Infrastructure
 		    // NOOP
 	    }
 
+	    public T Create()
+	    {
+		    return new T();
+	    }
+
 	    public T Get(Guid id)
         {
             T dto;

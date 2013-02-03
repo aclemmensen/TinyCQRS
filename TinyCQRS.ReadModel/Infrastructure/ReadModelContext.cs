@@ -14,10 +14,19 @@ namespace TinyCQRS.ReadModel.Infrastructure
 		public ReadModelContext() : base("TinyCQRS.ReadModel")
 		{
 			Configuration.ProxyCreationEnabled = true;
-			Configuration.ProxyCreationEnabled = true;
 		}
 
 		public ReadModelContext(string name) : base(name) { }
+
+		public ReadModelContext(bool delayCommit) : this()
+		{
+			DelayCommit = delayCommit;
+			
+			if (delayCommit)
+			{
+				Configuration.AutoDetectChangesEnabled = false;
+			}
+		}
 
 		protected override void OnModelCreating(DbModelBuilder modelBuilder)
 		{
@@ -45,12 +54,24 @@ namespace TinyCQRS.ReadModel.Infrastructure
 
 		public override int SaveChanges()
 		{
-			return !DelayCommit ? base.SaveChanges() : 0;
+			if (!DelayCommit)
+			{
+				ChangeTracker.DetectChanges();
+				return base.SaveChanges();
+			}
+
+			return 0;
 		}
 
 		public int ExecuteDelayedCommits()
 		{
-			return DelayCommit ? base.SaveChanges() : 0;
+			if (DelayCommit)
+			{
+				ChangeTracker.DetectChanges();
+				return base.SaveChanges();
+			}
+
+			return 0;
 		}
 	}
 }

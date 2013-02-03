@@ -21,6 +21,8 @@ namespace TinyCQRS.Infrastructure.Persistence
 			_set = _context.Events;
 		}
 
+		public int Processed { get; private set; }
+
 		public IEnumerable<Event> GetEventsFor(Guid id)
 		{
 			if (!_cache.ContainsKey(id))
@@ -48,6 +50,8 @@ namespace TinyCQRS.Infrastructure.Persistence
 
 		public void StoreEvent(Event @event)
 		{
+			Processed++;
+
 			if (!_cache.ContainsKey(@event.AggregateId))
 			{
 				_cache[@event.AggregateId] = new List<Event>();

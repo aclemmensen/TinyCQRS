@@ -10,6 +10,8 @@ namespace TinyCQRS.Infrastructure.Persistence
         private readonly IEventStore _eventStore;
         private readonly IMessageBus _bus;
 
+		public int Processed { get { return _eventStore.Processed; } }
+
         public DispatchingEventStore(IEventStore eventStore, IMessageBus bus)
         {
             _eventStore = eventStore;
@@ -26,7 +28,8 @@ namespace TinyCQRS.Infrastructure.Persistence
 			}
         }
 
-        public IEnumerable<Event> GetEventsFor(Guid id)
+
+	    public IEnumerable<Event> GetEventsFor(Guid id)
         {
             return _eventStore.GetEventsFor(id);
         }
