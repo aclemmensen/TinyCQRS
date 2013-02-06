@@ -6,38 +6,54 @@ using TinyCQRS.ReadModel.Model;
 namespace TinyCQRS.ReadModel.Generators
 {
 	public class SiteReadModelGenerator : 
-		IConsume<SiteCreatedEvent>
+		IConsume<SiteCreatedEvent>,
+		IConsume<PageCreated>
 	{
-		private readonly IReadModelRepository<Site> _siteRepository;
-		private readonly IReadModelRepository<Page> _pageRepository;
+		private readonly IReadModelRepository<Site> _sites;
 
-		public SiteReadModelGenerator(IReadModelRepository<Site> siteRepository, IReadModelRepository<Page> pageRepository)
+		public SiteReadModelGenerator(IReadModelRepository<Site> sites)
 		{
-			_siteRepository = siteRepository;
-			_pageRepository = pageRepository;
+			_sites = sites;
 		}
 
 		public void Process(SiteCreatedEvent @event)
 		{
-			var site = _siteRepository.Create();
+			var site = _sites.Create();
 			
 			site.Id = @event.AggregateId;
 			site.Name = @event.Name;
 			site.Root = @event.Root;
 
-			_siteRepository.Add(site);
-			//_siteRepository.Commit();
+			_sites.Add(site);
+			_sites.Commit();
 		}
 
-		//public void Process(PageAddedEvent @event)
-		//{
-		//	var site = _siteRepository.Get(@event.AggregateId);
-		//	var page = _pageRepository.Get(@event.PageId);
-			
-		//	site.Pages.Add(page);
+		public void Process(PageCreated @event)
+		{
+			var site = _sites.Get(@event.SiteId);
 
-		//	_siteRepository.Update(site);
-		//	_siteRepository.Commit();
-		//}
+			var page = new Page
+			{
+				Id = @event.PageId,
+				Content = @event.Content,
+				FirstSeen = @event.TimeOfCreation,
+				Url = @event.Url,
+				SiteId = @event.SiteId
+			};
+
+			page.Checks.Add(new PageCheck
+			{
+				Page = page,
+				PageId = @event.PageId,
+				TimeOfCheck = @event.TimeOfCreation,
+				CrawlId = @event.AggregateId
+			});
+
+			site.Pages.Add(page);
+
+			_sites.Update(site);
+			_sites.Commit();
+			
+		}
 	}
 }

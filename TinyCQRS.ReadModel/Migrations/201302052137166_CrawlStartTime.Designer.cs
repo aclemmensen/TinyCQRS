@@ -5,13 +5,13 @@ namespace TinyCQRS.ReadModel.Migrations
     using System.Data.Entity.Migrations.Infrastructure;
     using System.Resources;
     
-    public sealed partial class Init : IMigrationMetadata
+    public sealed partial class CrawlStartTime : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(Init));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(CrawlStartTime));
         
         string IMigrationMetadata.Id
         {
-            get { return "201301311949345_Init"; }
+            get { return "201302052137166_CrawlStartTime"; }
         }
         
         string IMigrationMetadata.Source

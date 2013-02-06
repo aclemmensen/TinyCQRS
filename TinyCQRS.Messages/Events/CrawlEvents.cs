@@ -17,7 +17,6 @@ namespace TinyCQRS.Messages.Events
 	public class PageChecked : Event
 	{
 		public Guid PageId { get; set; }
-
 		public DateTime TimeOfCheck { get; set; }
 
 		public PageChecked(Guid crawlId, Guid pageId, DateTime timeOfCheck)

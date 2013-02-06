@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using TinyCQRS.ReadModel.Interfaces;
 
 namespace TinyCQRS.ReadModel.Model
 {
-	public class Page : Dto
+	public class Page : Entity
 	{
 		public virtual string Url { get; set; }
 		
@@ -12,13 +13,10 @@ namespace TinyCQRS.ReadModel.Model
 		
 		public virtual Guid SiteId { get; set; }
 
-		private Collection<CrawlRecord> _records;
-		public virtual Collection<CrawlRecord> CrawlRecords { get { return _records ?? (_records = new Collection<CrawlRecord>()); } }
-
 		public DateTime? FirstSeen { get; set; }
 		public DateTime? LastChecked { get; set; }
 
-		//private Collection<ResourceDto> _resources; 
-		//public ICollection<ResourceDto> Resources { get { return _resources ?? (_resources = new Collection<ResourceDto>()); } }
+		private Collection<PageCheck> _checks;
+		public ICollection<PageCheck> Checks { get { return _checks ?? (_checks = new Collection<PageCheck>()); } }
 	}
 }

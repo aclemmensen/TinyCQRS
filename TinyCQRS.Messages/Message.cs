@@ -5,10 +5,11 @@ namespace TinyCQRS.Messages
     public abstract class Message
     {
         public Guid AggregateId { get; set; }
+		public Guid CorrelationId { get; set; }
 
         protected Message()
         {
-            AggregateId = Guid.Empty;
+
         }
 
         protected Message(Guid aggregateId)
@@ -21,7 +22,6 @@ namespace TinyCQRS.Messages
     {
         public int Version { get; set; }
 
-        public Guid CorrelationId { get; set; }
 
         protected Event(Guid aggregateId) : base(aggregateId) { }
     }

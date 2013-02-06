@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TinyCQRS.Domain;
 using TinyCQRS.Domain.Interfaces;
+using TinyCQRS.Infrastructure.Caching;
 
 namespace TinyCQRS.Infrastructure.Persistence
 {

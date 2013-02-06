@@ -6,7 +6,6 @@ using TinyCQRS.ReadModel.Model;
 namespace TinyCQRS.ReadModel.Generators
 {
 	public class PageReadModelGenerator :
-		IConsume<PageCreated>,
 		IConsume<PageContentChanged>,
 		IConsume<PageChecked>
 	{
@@ -17,23 +16,11 @@ namespace TinyCQRS.ReadModel.Generators
 			_pages = pages;
 		}
 
-		public void Process(PageCreated @event)
-		{
-			var page = _pages.Create();
-			page.Id = @event.PageId;
-			page.Url = @event.Url;
-			page.Content = @event.Content;
-			page.SiteId = @event.AggregateId;
-
-			_pages.Add(page);
-			_pages.Commit();
-		}
-
 		public void Process(PageContentChanged @event)
 		{
 			var page = _pages.Get(@event.AggregateId);
 			page.Content = @event.Content;
-			_pages.Add(page);
+			_pages.Update(page);
 			_pages.Commit();
 		}
 
@@ -47,7 +34,16 @@ namespace TinyCQRS.ReadModel.Generators
 			}
 
 			page.LastChecked = @event.TimeOfCheck;
+
+			page.Checks.Add(new PageCheck
+			{
+				Page = page,
+				PageId = page.Id,
+				TimeOfCheck = @event.TimeOfCheck,
+				CrawlId = @event.AggregateId
+			});
 			
+			_pages.Update(page);
 			_pages.Commit();
 		}
 	}

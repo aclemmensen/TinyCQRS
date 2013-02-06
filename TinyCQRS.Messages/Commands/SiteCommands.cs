@@ -14,18 +14,19 @@ namespace TinyCQRS.Messages.Commands
 		}
 	}
 
-	public class CreateNewPage : Command
+	public class RegisterNewPage : Command
 	{
 		public Guid PageId { get; set; }
 		public string Url { get; private set; }
 		public string Content { get; private set; }
+		public DateTime TimeOfCreation { get; set; }
 
-		public CreateNewPage(Guid siteId, Guid pageId, string url, string content)
-			: base(siteId)
+		public RegisterNewPage(Guid crawlId, Guid pageId, string url, string content, DateTime timeOfCreation) : base(crawlId)
 		{
 			PageId = pageId;
 			Url = url;
 			Content = content;
+			TimeOfCreation = timeOfCreation;
 		}
 	}
 
@@ -33,12 +34,13 @@ namespace TinyCQRS.Messages.Commands
 	{
 		public Guid PageId { get; set; }
 		public string NewContent { get; private set; }
+		public DateTime TimeOfChange { get; set; }
 
-		public UpdatePageContent(Guid siteId, Guid pageId, string newContent)
-			: base(siteId)
+		public UpdatePageContent(Guid crawlId, Guid pageId, string newContent, DateTime timeOfChange) : base(crawlId)
 		{
 			PageId = pageId;
 			NewContent = newContent;
+			TimeOfChange = timeOfChange;
 		}
 	}
 }

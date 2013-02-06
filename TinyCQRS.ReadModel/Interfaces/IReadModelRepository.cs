@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace TinyCQRS.ReadModel.Interfaces
 {
-    public interface IReadModelRepository<T> where T : IDto, new()
+    public interface IReadModelRepository<T> where T : Entity, new()
     {
 	    T Get(Guid aggregateId);
 

@@ -42,9 +42,8 @@
     <Compile Include="DomainModel\QualityAssurance\Page.cs" />
     <Compile Include="DomainModel\Entity.cs" />
     <Compile Include="EventSourced\QualityAssurance\CrawlAggregate.cs" />
-    <Compile Include="EventSourced\QualityAssurance\CrawlCommandHandler.cs" />
     <Compile Include="EventSourced\QualityAssurance\SiteAggregate.cs" />
-    <Compile Include="EventSourced\QualityAssurance\SiteCommandHandler.cs" />
+    <Compile Include="EventSourced\QualityAssurance\CrawlCommandHandler.cs" />
     <Compile Include="Interfaces\IApply.cs" />
     <Compile Include="Interfaces\IEventStore.cs" />
     <Compile Include="Interfaces\IHandle.cs" />

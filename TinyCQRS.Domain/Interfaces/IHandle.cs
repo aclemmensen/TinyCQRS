@@ -2,7 +2,12 @@
 
 namespace TinyCQRS.Domain.Interfaces
 {
-	public interface IHandle<T> where T : Command
+	public interface IHandler
+	{
+		
+	}
+
+	public interface IHandle<T> : IHandler where T : Command
 	{
 		void Handle(T command);
 	}

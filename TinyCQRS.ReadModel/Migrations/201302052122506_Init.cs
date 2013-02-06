@@ -23,30 +23,29 @@ namespace TinyCQRS.ReadModel.Migrations
                 .Index(t => t.SiteId);
             
             CreateTable(
-                "dbo.CrawlRecords",
+                "dbo.PageChecks",
                 c => new
                     {
-                        Id = c.Guid(nullable: false),
+                        Id = c.Long(nullable: false, identity: true),
                         TimeOfCheck = c.DateTime(nullable: false),
-                        CrawlJobId = c.Guid(nullable: false),
                         PageId = c.Guid(nullable: false),
+                        CrawlId = c.Guid(nullable: false),
                     })
                 .PrimaryKey(t => t.Id)
-                .ForeignKey("dbo.CrawlJobs", t => t.CrawlJobId, cascadeDelete: true)
-                .ForeignKey("dbo.Pages", t => t.PageId)
-                .Index(t => t.CrawlJobId)
-                .Index(t => t.PageId);
+                .ForeignKey("dbo.Pages", t => t.PageId, cascadeDelete: true)
+                .ForeignKey("dbo.Crawls", t => t.CrawlId, cascadeDelete: true)
+                .Index(t => t.PageId)
+                .Index(t => t.CrawlId);
             
             CreateTable(
-                "dbo.CrawlJobs",
+                "dbo.Crawls",
                 c => new
                     {
                         Id = c.Guid(nullable: false),
                         SiteId = c.Guid(nullable: false),
-                        StartTime = c.DateTime(nullable: false),
                     })
                 .PrimaryKey(t => t.Id)
-                .ForeignKey("dbo.Sites", t => t.SiteId, cascadeDelete: true)
+                .ForeignKey("dbo.Sites", t => t.SiteId)
                 .Index(t => t.SiteId);
             
             CreateTable(
@@ -63,17 +62,17 @@ namespace TinyCQRS.ReadModel.Migrations
         
         public override void Down()
         {
-            DropIndex("dbo.CrawlJobs", new[] { "SiteId" });
-            DropIndex("dbo.CrawlRecords", new[] { "PageId" });
-            DropIndex("dbo.CrawlRecords", new[] { "CrawlJobId" });
+            DropIndex("dbo.Crawls", new[] { "SiteId" });
+            DropIndex("dbo.PageChecks", new[] { "CrawlId" });
+            DropIndex("dbo.PageChecks", new[] { "PageId" });
             DropIndex("dbo.Pages", new[] { "SiteId" });
-            DropForeignKey("dbo.CrawlJobs", "SiteId", "dbo.Sites");
-            DropForeignKey("dbo.CrawlRecords", "PageId", "dbo.Pages");
-            DropForeignKey("dbo.CrawlRecords", "CrawlJobId", "dbo.CrawlJobs");
+            DropForeignKey("dbo.Crawls", "SiteId", "dbo.Sites");
+            DropForeignKey("dbo.PageChecks", "CrawlId", "dbo.Crawls");
+            DropForeignKey("dbo.PageChecks", "PageId", "dbo.Pages");
             DropForeignKey("dbo.Pages", "SiteId", "dbo.Sites");
             DropTable("dbo.Sites");
-            DropTable("dbo.CrawlJobs");
-            DropTable("dbo.CrawlRecords");
+            DropTable("dbo.Crawls");
+            DropTable("dbo.PageChecks");
             DropTable("dbo.Pages");
         }
     }

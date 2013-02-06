@@ -2,12 +2,12 @@
 
 namespace TinyCQRS.ReadModel.Interfaces
 {
-    public interface IDto
-    {
-		Guid Id { get; }
-    }
+	public abstract class Dto
+	{
+		public long Id { get; set; }
+	}
 
-	public abstract class Dto : IDto
+	public abstract class Entity
 	{
 		public Guid Id { get; set; }
 	}

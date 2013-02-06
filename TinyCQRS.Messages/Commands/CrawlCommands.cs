@@ -4,22 +4,22 @@ namespace TinyCQRS.Messages.Commands
 {
 	public class StartCrawl : Command
 	{
-		public Guid SiteId { get; private set; }
+		public Guid SiteId { get; set; }
 		public DateTime StartTime { get; private set; }
 
-		public StartCrawl(Guid crawlId, Guid siteId, DateTime startTime) : base(crawlId)
+		public StartCrawl(Guid crawlid, Guid siteId, DateTime startTime) : base(crawlid)
 		{
 			SiteId = siteId;
 			StartTime = startTime;
 		}
 	}
 
-	public class RegisterCheck : Command
+	public class RegisterPageCheck : Command
 	{
 		public Guid PageId { get; set; }
 		public DateTime TimeOfCheck { get; set; }
 
-		public RegisterCheck(Guid crawlId, Guid pageId, DateTime timeOfCheck)
+		public RegisterPageCheck(Guid crawlId, Guid pageId, DateTime timeOfCheck)
 			: base(crawlId)
 		{
 			PageId = pageId;

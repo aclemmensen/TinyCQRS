@@ -5,7 +5,7 @@ using TinyCQRS.ReadModel.Interfaces;
 
 namespace TinyCQRS.ReadModel.Infrastructure
 {
-    public class InMemoryReadModelRepository<T> : IReadModelRepository<T> where T : IDto, new()
+    public class InMemoryReadModelRepository<T> : IReadModelRepository<T> where T : Entity, new()
     {
         private readonly Dictionary<Guid,T> _data = new Dictionary<Guid, T>();
 

@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using TinyCQRS.Messages.Commands;
 using TinyCQRS.ReadModel.Model;
 
 namespace TinyCQRS.Client
 {
 	public interface ISiteCrawlService
 	{
-		void StartCrawl(Guid crawlId, Guid siteId);
+		void CreateNewSite(CreateNewSite command);
 
-		void CreateNewSite(Guid id, string name, string root);
+		void StartCrawl(StartCrawl command);
 
-		void AddNewPage(Guid crawlId, Guid pageId, string url, string content);
+		void RegisterNewPage(RegisterNewPage command);
 
-		void UpdatePageContent(Guid crawlId, Guid pageId, string newContent);
+		void UpdatePageContent(UpdatePageContent command);
 
-		void PageCheckedWithoutChanges(Guid crawlId, Guid pageId, DateTime timeOfCheck);
+		void PageCheckedWithoutChanges(RegisterPageCheck command);
 
 		Site GetSite(Guid siteId);
 

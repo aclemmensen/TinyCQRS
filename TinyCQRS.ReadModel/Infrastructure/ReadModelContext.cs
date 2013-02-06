@@ -7,7 +7,7 @@ namespace TinyCQRS.ReadModel.Infrastructure
 	{
 		public DbSet<Page> Pages { get; set; }
 		public DbSet<Site> Sites { get; set; }
-		public DbSet<CrawlJob> Crawls { get; set; }
+		public DbSet<Crawl> Crawls { get; set; }
 
 		public bool DelayCommit { get; set; }
 
@@ -30,24 +30,15 @@ namespace TinyCQRS.ReadModel.Infrastructure
 
 		protected override void OnModelCreating(DbModelBuilder modelBuilder)
 		{
-			//modelBuilder.Entity<Site>()
-			//			.HasKey(x => x.Id);
-
-			//modelBuilder.Entity<Page>()
-			//			.HasKey(x => x.Id);
-
-			//modelBuilder.Entity<CrawlJob>()
-			//			.HasKey(x => x.Id);
-
-			modelBuilder.Entity<CrawlRecord>()
+			modelBuilder.Entity<PageCheck>()
 						.HasRequired(x => x.Page)
-						.WithMany(x => x.CrawlRecords)
-						.WillCascadeOnDelete(false);
+						.WithMany(x => x.Checks)
+						.WillCascadeOnDelete(true);
 
-			modelBuilder.Entity<CrawlJob>()
-						.HasRequired(x => x.Site)
-						.WithMany(x => x.Crawls)
-						.HasForeignKey(x => x.SiteId);
+			modelBuilder.Entity<Crawl>()
+				.HasRequired(x => x.Site)
+				.WithMany(x => x.Crawls)
+				.WillCascadeOnDelete(false);
 
 			base.OnModelCreating(modelBuilder);
 		}

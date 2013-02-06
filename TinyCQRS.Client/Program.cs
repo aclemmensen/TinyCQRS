@@ -1,16 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Data.Entity;
 using System.Threading;
 using System.Threading.Tasks;
-using TinyCQRS.Domain;
-using TinyCQRS.Domain.EventSourced.QualityAssurance;
+using Castle.MicroKernel.Registration;
+using Castle.MicroKernel.SubSystems.Configuration;
+using Castle.Windsor;
 using TinyCQRS.Domain.Interfaces;
 using TinyCQRS.Infrastructure.Caching;
 using TinyCQRS.Infrastructure.Persistence;
 using TinyCQRS.Messages;
+using TinyCQRS.Messages.Commands;
 using TinyCQRS.ReadModel.Generators;
 using TinyCQRS.ReadModel.Infrastructure;
-using TinyCQRS.ReadModel.Model;
+using TinyCQRS.ReadModel.Interfaces;
 
 namespace TinyCQRS.Client
 {
@@ -24,12 +26,19 @@ namespace TinyCQRS.Client
 			var siteId = Guid.NewGuid();
 			var crawlId = Guid.NewGuid();
 
-			var service = DatabaseBacked();
-			
+			//var service = DatabaseBacked();
+
+			var container = Container(new DatabaseServiceInstaller(@"Data Source=.\SQLExpress;Integrated Security=true;Database=TinyCQRS.Events"));
+			//var container = Container(new MemoryServiceInstaller());
+			var service = container.Resolve<ISiteCrawlService>();
+			_eventStore = container.Resolve<IEventStore>();
+
 			CreateNewSite(service, siteId);
 
 			//LoadExistingData(service, existing);
 			CrawlSite(service, siteId);
+
+			LoadExistingData(service, siteId);
 
 			if (_readModelContext != null)
 			{
@@ -38,24 +47,24 @@ namespace TinyCQRS.Client
 				Console.WriteLine("Completed {0} commits", c);
 			}
 
+			var site = service.GetSite(siteId);
+			Console.WriteLine(site);
+
 			Console.WriteLine("rbeak");
 		}
 
 		static void CreateNewSite(ISiteCrawlService service, Guid siteId)
 		{
-			service.CreateNewSite(siteId, "Testsite", "http://root.dk");
-
-			CrawlSite(service, siteId);
+			service.CreateNewSite(new CreateNewSite(siteId, "Testsite", "http://weeee.dk"));
 		}
 
 		static void CrawlSite(ISiteCrawlService service, Guid siteId)
 		{
-			var crawlId = Guid.NewGuid();
 			var crawler = new Crawler(service, new NullLogger());
 
-			crawler.Crawl(siteId, crawlId);
+			crawler.Crawl(siteId);
 
-			for (var i = 0; i < 8000; i++)
+			for (var i = 0; i < 250; i++)
 			{
 				crawler.Handle("http://someurl.dk/page_" + i + ".html", "This is the content");
 				crawler.Handle("http://newurl.dk", "this is a new page");
@@ -69,66 +78,102 @@ namespace TinyCQRS.Client
 			Console.WriteLine("rbeak");
 		}
 
-		static ISiteCrawlService DatabaseBacked()
+
+		//static ISiteCrawlService MemoryBacked()
+		//{
+		//	// Infrastructure
+			
+		//	var messageBus = new InMemoryMessageBus();
+		//	_eventStore = new InMemoryEventStore();
+		//	var eventStore = new CachingEventStore(_eventStore, new MemoryCache<IList<Event>>());
+		//	var dispatchingEventStore = new DispatchingEventStore(eventStore, messageBus);
+		//	var logger = new NullLogger();
+
+		//	// Write-side
+		//	var aggregateCache = new MemoryCache<AggregateRoot>();
+		//	var siteRepository = new EventedRepository<SiteAggregate>(dispatchingEventStore, aggregateCache);
+		//	var crawlRepository = new EventedRepository<CrawlAggregate>(dispatchingEventStore, aggregateCache);
+		//	var container = Container(siteRepository, crawlRepository);
+		//	var dispatcher = new CommandDispatcher(container, logger);
+
+		//	// Read-side
+		//	var siteDtoRepository = new InMemoryReadModelRepository<Site>();
+		//	var pageDtoRepository = new InMemoryReadModelRepository<Page>();
+		//	var siteReadModelGenerator = new SiteReadModelGenerator(siteDtoRepository);
+		//	var pageReadModelGenerator = new PageReadModelGenerator(pageDtoRepository);
+
+		//	// Hook-up
+		//	messageBus.Subscribe(pageReadModelGenerator, siteReadModelGenerator);
+
+		//	// Service
+		//	return new SiteCrawlService(dispatcher, siteDtoRepository);
+		//}
+
+		static IWindsorContainer Container(IWindsorInstaller installer)
 		{
-			// Infrastructure
-			var messageBus = new InMemoryMessageBus();
-			_eventStore = new SqlEventStore(@"Data Source=.\SQLExpress;Integrated Security=true;Database=TinyCQRS.Events");
-			var eventStore = new CachingEventStore(_eventStore, new MemoryCache<IList<Event>>());
-			var dispatchingEventStore = new DispatchingEventStore(eventStore, messageBus);
+			var container = new WindsorContainer();
+			container.Install(installer);
 
-			// Write-side
-			var aggregateCache = new MemoryCache<AggregateRoot>();
-			var siteRepository = new EventedRepository<SiteAggregate>(dispatchingEventStore, aggregateCache);
-			var crawlRepository = new EventedRepository<CrawlAggregate>(dispatchingEventStore, aggregateCache);
-			var siteCommandHandler = new SiteCommandHandler(siteRepository);
-			var crawlCommandHandler = new CrawlCommandHandler(crawlRepository);
+			var consumers = container.ResolveAll<IConsume>();
+			var bus = container.Resolve<IMessageBus>();
+			bus.Subscribe(consumers);
 
-			// Read-side
-			_readModelContext = new ReadModelContext(true);
-			var siteDtoRepository = new CachingReadModelRepository<Site>(new EfReadModelRepository<Site>(_readModelContext));
-			var pageDtoRepository = new CachingReadModelRepository<Page>(new EfReadModelRepository<Page>(_readModelContext));
-			var crawlDtoRepository = new CachingReadModelRepository<CrawlJob>(new EfReadModelRepository<CrawlJob>(_readModelContext)); ;
-			var siteReadModelGenerator = new SiteReadModelGenerator(siteDtoRepository, pageDtoRepository);
-			var pageReadModelGenerator = new PageReadModelGenerator(pageDtoRepository);
-			var crawlReadModelGenerator = new CrawlRunReadModelGenerator(crawlDtoRepository, siteDtoRepository);
-
-			// Hook-up
-			messageBus.Subscribe(pageReadModelGenerator, siteReadModelGenerator, crawlReadModelGenerator);
-
-			// Service
-			return new SiteCrawlService(siteCommandHandler, crawlCommandHandler, siteDtoRepository, crawlDtoRepository);
+			return container;
 		}
 
-		static ISiteCrawlService MemoryBacked()
+		public class ServiceInstaller : IWindsorInstaller
 		{
-			// Infrastructure
-			var messageBus = new InMemoryMessageBus();
-			var eventStore = new InMemoryEventStore();
-			//var eventStore = new SqlEventStore(@"Data Source=.\SQLExpress;Integrated Security=true;Database=TinyCQRS.Events");
-			_eventStore = new CachingEventStore(eventStore, new MemoryCache<IList<Event>>());
-			var dispatchingEventStore = new DispatchingEventStore(_eventStore, messageBus);
+			public virtual void Install(IWindsorContainer container, IConfigurationStore store)
+			{
+				container.Register(Classes.FromAssemblyContaining(typeof (IHandle<>)).BasedOn<IHandler>().WithService.AllInterfaces());
+				container.Register(Classes.FromAssemblyContaining<SiteReadModelGenerator>().BasedOn<IConsume>().WithServiceAllInterfaces());
+				
+				container.Register(Component.For<IMessageBus>().ImplementedBy<InMemoryMessageBus>());
+				container.Register(Component.For(typeof (ICache<>)).ImplementedBy(typeof (MemoryCache<>)));
+				container.Register(Component.For(typeof (IRepository<>)).ImplementedBy(typeof (EventedRepository<>)));
+				container.Register(Component.For<ICommandDispatcher>().ImplementedBy<CommandDispatcher>());
+				container.Register(Component.For<ILogger>().ImplementedBy<NullLogger>());
+				container.Register(Component.For<IWindsorContainer>().Instance(container));
 
-			// Write-side
-			var aggregateCache = new MemoryCache<AggregateRoot>();
-			var siteRepository = new EventedRepository<SiteAggregate>(dispatchingEventStore, aggregateCache);
-			var crawlRepository = new EventedRepository<CrawlAggregate>(dispatchingEventStore, aggregateCache);
-			var siteCommandHandler = new SiteCommandHandler(siteRepository);
-			var crawlCommandHandler = new CrawlCommandHandler(crawlRepository);
+				container.Register(
+					Component.For<IEventStore>().ImplementedBy<DispatchingEventStore>(),
+					Component.For<IEventStore>().ImplementedBy<CachingEventStore>());
 
-			// Read-side
-			var siteDtoRepository = new InMemoryReadModelRepository<Site>();
-			var pageDtoRepository = new InMemoryReadModelRepository<Page>();
-			var crawlDtoRepository = new InMemoryReadModelRepository<CrawlJob>();
-			var siteReadModelGenerator = new SiteReadModelGenerator(siteDtoRepository, pageDtoRepository);
-			var pageReadModelGenerator = new PageReadModelGenerator(pageDtoRepository);
-			var crawlReadModelGenerator = new CrawlRunReadModelGenerator(crawlDtoRepository, siteDtoRepository);
+				container.Register(Component.For<ISiteCrawlService>().ImplementedBy<SiteCrawlService>());
+			}
+		}
 
-			// Hook-up
-			messageBus.Subscribe(pageReadModelGenerator, siteReadModelGenerator, crawlReadModelGenerator);
+		public class DatabaseServiceInstaller : ServiceInstaller
+		{
+			private readonly string _connstr;
 
-			// Service
-			return new SiteCrawlService(siteCommandHandler, crawlCommandHandler, siteDtoRepository, crawlDtoRepository);
+			public DatabaseServiceInstaller(string connstr)
+			{
+				_connstr = connstr;
+			}
+
+			public override void Install(IWindsorContainer container, IConfigurationStore store)
+			{
+				base.Install(container, store);
+
+				container.Register(Component.For<IEventStore>().ImplementedBy<SqlEventStore>().DependsOn(new {connstr = _connstr}));
+				container.Register(Component.For<DbContext>().ImplementedBy<ReadModelContext>());
+
+				container.Register(
+					Component.For(typeof (IReadModelRepository<>)).ImplementedBy(typeof (CachingReadModelRepository<>)),
+					Component.For(typeof (IReadModelRepository<>)).ImplementedBy(typeof (EfReadModelRepository<>)));
+			}
+		}
+
+		public class MemoryServiceInstaller : ServiceInstaller
+		{
+			public override void Install(IWindsorContainer container, IConfigurationStore store)
+			{
+				base.Install(container, store);
+
+				container.Register(Component.For<IEventStore>().ImplementedBy<InMemoryEventStore>());
+				container.Register(Component.For(typeof (IReadModelRepository<>)).ImplementedBy(typeof (InMemoryReadModelRepository<>)));
+			}
 		}
 
 		static void Main(string[] args)

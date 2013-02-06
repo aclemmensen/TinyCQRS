@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using TinyCQRS.Messages.Commands;
 
 namespace TinyCQRS.Client
 {
@@ -12,6 +13,7 @@ namespace TinyCQRS.Client
 		private readonly HashSet<string> _seenUrls = new HashSet<string>();
 
 		private CrawlSpec _spec;
+		private Guid _crawlId;
 
 		public Crawler(ISiteCrawlService service, ILogger logger)
 		{
@@ -19,12 +21,13 @@ namespace TinyCQRS.Client
 			_logger = logger;
 		}
 
-		public void Crawl(Guid siteId, Guid crawlId)
+		public void Crawl(Guid siteId)
 		{
-			_logger.Log("Starting crawl {0} for site {1}", crawlId, siteId);
-			_service.StartCrawl(crawlId, siteId);
+			_crawlId = Guid.NewGuid();
+			_logger.Log("Starting crawl for site {0}", siteId);
+			_service.StartCrawl(new StartCrawl(_crawlId, siteId, DateTime.UtcNow));
 
-			_spec = _service.GetCrawlInfoFor(crawlId);
+			_spec = _service.GetCrawlInfoFor(siteId);
 			_urlMap.Clear();
 
 			foreach (var pageInfo in _spec.Pages.Where(page => !_urlMap.ContainsKey(page.Url)))
@@ -49,12 +52,12 @@ namespace TinyCQRS.Client
 				if (!HashingHelper.Hash(content).Equals(page.ContentHash))
 				{
 					_logger.Log("New content: {0}", url);
-					_service.UpdatePageContent(_spec.CrawlId, page.PageId, content);
+					_service.UpdatePageContent(new UpdatePageContent(_spec.SiteId, page.PageId, content, DateTime.UtcNow));
 				}
 				else
 				{
 					_logger.Log("No change: {0}", url);
-					_service.PageCheckedWithoutChanges(_spec.CrawlId, page.PageId, DateTime.UtcNow);
+					_service.PageCheckedWithoutChanges(new RegisterPageCheck(_spec.SiteId, page.PageId, DateTime.UtcNow));
 				}
 
 				_seenUrls.Add(url);
@@ -62,7 +65,7 @@ namespace TinyCQRS.Client
 			else
 			{
 				_logger.Log("Adding new page: {0}", url);
-				_service.AddNewPage(_spec.CrawlId, Guid.NewGuid(), url, content);
+				_service.RegisterNewPage(new RegisterNewPage(_crawlId, Guid.NewGuid(), url, content, DateTime.UtcNow));
 				_seenUrls.Add(url);
 			}
 		}

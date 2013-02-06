@@ -16,39 +16,34 @@ namespace TinyCQRS.Messages.Events
 
 	public class PageCreated : Event
 	{
+		public Guid SiteId { get; set; }
 		public Guid PageId { get; set; }
 		public string Url { get; private set; }
 		public string Content { get; private set; }
+		public DateTime TimeOfCreation { get; set; }
 
-		public PageCreated(Guid siteId, Guid pageId, string url, string content)
-			: base(siteId)
+		public PageCreated(Guid crawlId, Guid siteId, Guid pageId, string url, string content, DateTime timeOfCreation)
+			: base(crawlId)
 		{
+			SiteId = siteId;
 			PageId = pageId;
 			Url = url;
 			Content = content;
-		}
-	}
-
-	public class ResourceAdded : Event
-	{
-		public Guid ResourceId { get; set; }
-
-		public ResourceAdded(Guid id, Guid resourceId)
-			: base(id)
-		{
-			ResourceId = resourceId;
+			TimeOfCreation = timeOfCreation;
 		}
 	}
 
 	public class PageContentChanged : Event
 	{
+		public Guid PageId { get; set; }
 		public string Content { get; private set; }
 
 		public DateTime TimeOfChange { get; set; }
 
-		public PageContentChanged(Guid pageId, string content, DateTime timeOfChange)
-			: base(pageId)
+		public PageContentChanged(Guid siteId, Guid pageId, string content, DateTime timeOfChange)
+			: base(siteId)
 		{
+			PageId = pageId;
 			Content = content;
 			TimeOfChange = timeOfChange;
 		}

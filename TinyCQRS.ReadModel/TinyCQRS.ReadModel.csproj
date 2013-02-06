@@ -44,15 +44,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Generators\CrawlRunReadModelGenerator.cs" />
+    <Compile Include="Generators\CrawlReadModelGenerator.cs" />
     <Compile Include="Generators\PageReadModelGenerator.cs" />
     <Compile Include="Generators\SiteReadModelGenerator.cs" />
+    <Compile Include="Infrastructure\CachingReadModelRepository.cs" />
     <Compile Include="Infrastructure\EfReadModelRepository.cs" />
     <Compile Include="Infrastructure\InMemoryReadModelRepository.cs" />
     <Compile Include="Infrastructure\ReadModelContext.cs" />
-    <Compile Include="Migrations\201301311949345_Init.cs" />
-    <Compile Include="Migrations\201301311949345_Init.Designer.cs">
-      <DependentUpon>201301311949345_Init.cs</DependentUpon>
+    <Compile Include="Migrations\201302052122506_Init.cs" />
+    <Compile Include="Migrations\201302052122506_Init.Designer.cs">
+      <DependentUpon>201302052122506_Init.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201302052137166_CrawlStartTime.cs" />
+    <Compile Include="Migrations\201302052137166_CrawlStartTime.Designer.cs">
+      <DependentUpon>201302052137166_CrawlStartTime.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Model\CrawlJob.cs" />
@@ -73,8 +78,11 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201301311949345_Init.resx">
-      <DependentUpon>201301311949345_Init.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201302052122506_Init.resx">
+      <DependentUpon>201302052122506_Init.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201302052137166_CrawlStartTime.resx">
+      <DependentUpon>201302052137166_CrawlStartTime.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

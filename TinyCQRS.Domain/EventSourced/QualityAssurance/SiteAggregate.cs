@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using TinyCQRS.Domain.Interfaces;
+using TinyCQRS.Messages.Commands;
 using TinyCQRS.Messages.Events;
 
 namespace TinyCQRS.Domain.EventSourced.QualityAssurance
 {
 	public class SiteAggregate : AggregateRoot,
-		IApply<SiteCreatedEvent>,
-		IApply<PageCreated>,
-		IApply<PageContentChanged>
+		IApply<SiteCreatedEvent>
 	{
 		private string _root;
 		private string _name;
@@ -21,19 +20,9 @@ namespace TinyCQRS.Domain.EventSourced.QualityAssurance
 			ApplyChange(new SiteCreatedEvent(id, name, root));
 		}
 
-		public void AddNewPage(Guid pageId, string url, string content)
+		public void StartCrawl(Guid crawlId)
 		{
-			if (_pages.Contains(pageId))
-			{
-				throw new InvalidOperationException("Page already exists on site");
-			}
-
-			ApplyChange(new PageCreated(_id, pageId, url, content));
-		}
-
-		public void UpdatePageContent(Guid pageId, string newContent)
-		{
-			ApplyChange(new PageContentChanged(pageId, newContent, DateTime.UtcNow));
+			
 		}
 
 		public void Apply(SiteCreatedEvent @event)
@@ -42,15 +31,30 @@ namespace TinyCQRS.Domain.EventSourced.QualityAssurance
 			_name = @event.Name;
 			_root = @event.Root;
 		}
+	}
 
-		public void Apply(PageCreated @event)
+	public class CrawlProcessManager : IProcessManager
+	{
+		public Guid Id { get; private set; }
+		public bool Complete { get; private set; }
+
+		public Guid SiteId { get; private set; }
+
+		public CrawlProcessManager()
 		{
-
+			Id = Guid.NewGuid();
 		}
 
-		public void Apply(PageContentChanged @event)
+		public CrawlProcessManager(Guid siteId) : this()
 		{
-			
+			SiteId = siteId;
 		}
+	}
+
+
+	public interface IProcessManager
+	{
+		Guid Id { get; }
+		bool Complete { get; }
 	}
 }
