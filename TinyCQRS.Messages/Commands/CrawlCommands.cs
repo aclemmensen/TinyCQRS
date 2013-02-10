@@ -1,29 +1,53 @@
 ﻿using System;
 
-namespace TinyCQRS.Messages.Commands
+namespace TinyCQRS.Contracts.Commands
 {
 	public class StartCrawl : Command
 	{
-		public Guid SiteId { get; set; }
+		public string CrawlerName { get; set; }
 		public DateTime StartTime { get; private set; }
 
-		public StartCrawl(Guid crawlid, Guid siteId, DateTime startTime) : base(crawlid)
+		public StartCrawl(Guid crawlid, string crawlerName, DateTime startTime) : base(crawlid)
 		{
-			SiteId = siteId;
+			CrawlerName = crawlerName;
 			StartTime = startTime;
 		}
 	}
 
-	public class RegisterPageCheck : Command
+	public class RegisterNoChangeCheck : Command
 	{
 		public Guid PageId { get; set; }
 		public DateTime TimeOfCheck { get; set; }
 
-		public RegisterPageCheck(Guid crawlId, Guid pageId, DateTime timeOfCheck)
+		public RegisterNoChangeCheck(Guid crawlId, Guid pageId, DateTime timeOfCheck)
 			: base(crawlId)
 		{
 			PageId = pageId;
 			TimeOfCheck = timeOfCheck;
+		}
+	}
+
+	public class OrderCrawl : Command
+	{
+		public Guid SiteId { get; set; }
+		public DateTime TimeOfOrder { get; set; }
+
+		public OrderCrawl(Guid crawlId, Guid siteId, DateTime timeOfOrder) : base(crawlId)
+		{
+			SiteId = siteId;
+			TimeOfOrder = timeOfOrder;
+		}
+	}
+
+	public class OrderPageCheck : Command
+	{
+		public Guid PageId { get; set; }
+		public DateTime TimeOfOrder { get; set; }
+
+		public OrderPageCheck(Guid siteId, Guid pageId, DateTime timeOfOrder) : base(siteId)
+		{
+			PageId = pageId;
+			TimeOfOrder = timeOfOrder;
 		}
 	}
 }

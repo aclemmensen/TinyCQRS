@@ -4,12 +4,13 @@ using System.IO;
 using System.Linq;
 using Microsoft.Isam.Esent.Collections.Generic;
 using Newtonsoft.Json;
+using TinyCQRS.Contracts;
+using TinyCQRS.Domain;
 using TinyCQRS.Domain.Interfaces;
-using TinyCQRS.Messages;
 
 namespace TinyCQRS.Infrastructure.Persistence
 {
-    public class EsentEventStore : IEventStore, IDisposable
+    public class EsentEventStore<T> : IEventStore<T>, IDisposable where T : IEventSourced
     {
         private readonly string _foldername;
         private readonly Dictionary<Guid, PersistentDictionary<int,string>> _storage;

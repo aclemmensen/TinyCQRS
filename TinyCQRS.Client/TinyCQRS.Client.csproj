@@ -53,23 +53,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommandDispatcher.cs" />
-    <Compile Include="Crawler.cs" />
-    <Compile Include="CrawlSpec.cs" />
-    <Compile Include="HashingHelper.cs" />
-    <Compile Include="ICommandDispatcher.cs" />
-    <Compile Include="ILogger.cs" />
-    <Compile Include="ISiteCrawlService.cs" />
-    <Compile Include="PageInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SiteCrawlService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\TinyCQRS.Application\TinyCQRS.Application.csproj">
+      <Project>{fea8c11a-29b5-4e39-adaf-0b5135a99d9d}</Project>
+      <Name>TinyCQRS.Application</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TinyCQRS.Domain\TinyCQRS.Domain.csproj">
       <Project>{5d1cd87f-fe09-40fc-9146-caabc456e518}</Project>
       <Name>TinyCQRS.Domain</Name>
@@ -78,9 +73,9 @@
       <Project>{fedceef9-b80c-413f-a2a9-c13cffeb53a9}</Project>
       <Name>TinyCQRS.Infrastructure</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TinyCQRS.Messages\TinyCQRS.Messages.csproj">
+    <ProjectReference Include="..\TinyCQRS.Messages\TinyCQRS.Contracts.csproj">
       <Project>{01bfd3a7-b73a-4de4-92af-d7cdc801ee2d}</Project>
-      <Name>TinyCQRS.Messages</Name>
+      <Name>TinyCQRS.Contracts</Name>
     </ProjectReference>
     <ProjectReference Include="..\TinyCQRS.ReadModel\TinyCQRS.ReadModel.csproj">
       <Project>{55cbef31-2765-4935-90fc-29a4078afe96}</Project>

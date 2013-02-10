@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Castle.Windsor.Lifestyles</name>
+    </assembly>
+    <members>
+        <member name="T:Castle.MicroKernel.Lifestyle.HybridLifestyleManager`2">
+            <summary>
+            Abstract hybrid lifestyle manager, with two underlying lifestyles
+            </summary>
+            <typeparam name="M1">Primary lifestyle manager</typeparam>
+            <typeparam name="M2">Secondary lifestyle manager</typeparam>
+        </member>
+        <member name="T:Castle.MicroKernel.Lifestyle.HybridScopeAccessor">
+            <summary>
+            Hybrid scope accessor. 
+            Tries a list of scope accessors until one returns a non-null scope.
+            </summary>
+        </member>
+        <member name="M:Castle.MicroKernel.Registration.LifestyleRegistrationExtensions.PerWebSession``1(Castle.MicroKernel.Registration.Lifestyle.LifestyleGroup{``0})">
+            <summary>
+            One component instance per web session.
+            Warning: because the session end event request only works InProc, components can't be reliably disposed. Burden is also affected.
+            </summary>
+            <typeparam name="S"></typeparam>
+            <param name="group"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Castle.MicroKernel.Registration.LifestyleRegistrationExtensions.PerHttpApplication``1(Castle.MicroKernel.Registration.Lifestyle.LifestyleGroup{``0})">
+            <summary>
+            One component instance per HttpApplication instance.
+            </summary>
+            <typeparam name="S"></typeparam>
+            <param name="group"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Castle.MicroKernel.Registration.LifestyleRegistrationExtensions.HybridPerWebRequestTransient``1(Castle.MicroKernel.Registration.Lifestyle.LifestyleGroup{``0})">
+            <summary>
+            One component instance per web request, or if HttpContext is not available, transient.
+            </summary>
+            <typeparam name="S"></typeparam>
+            <param name="group"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Castle.MicroKernel.Registration.LifestyleRegistrationExtensions.HybridPerWebRequestPerThread``1(Castle.MicroKernel.Registration.Lifestyle.LifestyleGroup{``0})">
+            <summary>
+            One component instance per web request, or if HttpContext is not available, one per thread.
+            </summary>
+            <typeparam name="S"></typeparam>
+            <param name="group"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Castle.MicroKernel.Lifestyle.PerHttpApplicationLifestyleModule">
+            <summary>
+            Storage for PerHttpApplication lifestyle scopes
+            </summary>
+        </member>
+    </members>
+</doc>

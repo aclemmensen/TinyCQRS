@@ -8,4 +8,10 @@ namespace TinyCQRS.Domain.Interfaces
         T GetById(Guid id);
         void Save(T aggregate, int? expectedVersion = null);
     }
+
+	public interface ISagaRepository<T> where T : ISaga, new()
+	{
+		T GetById(Guid id);
+		void Save(T saga, int? expectedVersion = null);
+	}
 }

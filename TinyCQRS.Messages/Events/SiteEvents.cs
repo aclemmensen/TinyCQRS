@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 
-namespace TinyCQRS.Messages.Events
+namespace TinyCQRS.Contracts.Events
 {
 	public class SiteCreatedEvent : Event
 	{
@@ -46,6 +47,23 @@ namespace TinyCQRS.Messages.Events
 			PageId = pageId;
 			Content = content;
 			TimeOfChange = timeOfChange;
+		}
+	}
+
+	public class CrawlCompleted : Event
+	{
+		public DateTime TimeOfCompletion { get; set; }
+
+		public IEnumerable<Guid> NewPages { get; set; }
+		public IEnumerable<Guid> ChangedPages { get; set; }
+		public IEnumerable<Guid> UnchangedPages { get; set; }
+
+		public CrawlCompleted(Guid crawlId, DateTime timeOfCompletion, IEnumerable<Guid> newPages, IEnumerable<Guid> changedPages, IEnumerable<Guid> unchangedPages) : base(crawlId)
+		{
+			TimeOfCompletion = timeOfCompletion;
+			NewPages = newPages;
+			ChangedPages = changedPages;
+			UnchangedPages = unchangedPages;
 		}
 	}
 }

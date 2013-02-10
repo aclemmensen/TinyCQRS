@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using TinyCQRS.Contracts;
 using TinyCQRS.ReadModel.Interfaces;
 
 namespace TinyCQRS.ReadModel.Infrastructure
@@ -8,42 +10,48 @@ namespace TinyCQRS.ReadModel.Infrastructure
 	public class CachingReadModelRepository<T> : IReadModelRepository<T> where T : Entity, new()
 	{
 		private readonly IReadModelRepository<T> _innerRepository;
-		private readonly Dictionary<Guid,T> _cache = new Dictionary<Guid, T>();
+		private readonly Dictionary<object,T> _cache = new Dictionary<object, T>();
 
 		public CachingReadModelRepository(IReadModelRepository<T> innerRepository)
 		{
 			_innerRepository = innerRepository;
 		}
 
-		public T Get(Guid aggregateId)
+		public T Get(object id)
 		{
-			if (!_cache.ContainsKey(aggregateId))
+			if (!_cache.ContainsKey(id))
 			{
-				_cache[aggregateId] = _innerRepository.Get(aggregateId);
+				_cache[id] = _innerRepository.Get(id);
 			}
 
-			return _cache[aggregateId];
+			return _cache[id];
 		}
 
-		public IQueryable<T> All()
+		public IQueryable<T> All(params Expression<Func<T, object>>[] including)
 		{
-			return _innerRepository.All();
+			return _innerRepository.All(including);
 		}
 
-		public IQueryable<T> Where(Func<T, bool> predicate)
+		public IQueryable<T> Where(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] including)
 		{
-			return _innerRepository.Where(predicate);
+			return _innerRepository.Where(predicate, including);
 		}
 
 		public void Add(T dto)
 		{
-			_cache[dto.Id] = dto;
+			_cache[dto.Id()] = dto;
 			_innerRepository.Add(dto);
 		}
 
 		public void Update(T dto)
 		{
 			_innerRepository.Update(dto);
+		}
+
+		public void Delete(T dto)
+		{
+			_cache.Remove(dto.Id());
+			_innerRepository.Delete(dto);
 		}
 
 		public void Commit()

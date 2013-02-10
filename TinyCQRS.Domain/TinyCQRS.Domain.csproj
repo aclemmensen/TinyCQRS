@@ -33,29 +33,31 @@
     <Reference Include="ReflectionMagic">
       <HintPath>..\packages\ReflectionMagic.1.1\lib\net40\ReflectionMagic.dll</HintPath>
     </Reference>
+    <Reference Include="Stateless">
+      <HintPath>..\packages\Stateless.2.3.1.1\lib\3.5\Stateless.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AggregateRoot.cs" />
-    <Compile Include="DomainModel\QualityAssurance\Page.cs" />
-    <Compile Include="DomainModel\Entity.cs" />
-    <Compile Include="EventSourced\QualityAssurance\CrawlAggregate.cs" />
-    <Compile Include="EventSourced\QualityAssurance\SiteAggregate.cs" />
-    <Compile Include="EventSourced\QualityAssurance\CrawlCommandHandler.cs" />
+    <Compile Include="Models\QualityAssurance\CrawlAggregate.cs" />
+    <Compile Include="Models\QualityAssurance\CrawlOrderCommandHandler.cs" />
+    <Compile Include="Models\QualityAssurance\SiteAggregate.cs" />
+    <Compile Include="Models\QualityAssurance\CrawlJobCommandHandler.cs" />
+    <Compile Include="Models\QualityAssurance\SiteCommandHandler.cs" />
     <Compile Include="Interfaces\IApply.cs" />
     <Compile Include="Interfaces\IEventStore.cs" />
     <Compile Include="Interfaces\IHandle.cs" />
-    <Compile Include="Interfaces\IMessageBus.cs" />
     <Compile Include="Interfaces\IRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ValueObject.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TinyCQRS.Messages\TinyCQRS.Messages.csproj">
+    <ProjectReference Include="..\TinyCQRS.Messages\TinyCQRS.Contracts.csproj">
       <Project>{01bfd3a7-b73a-4de4-92af-d7cdc801ee2d}</Project>
-      <Name>TinyCQRS.Messages</Name>
+      <Name>TinyCQRS.Contracts</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

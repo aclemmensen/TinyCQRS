@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TinyCQRS.Messages.Commands
+namespace TinyCQRS.Contracts.Commands
 {
 	public class CreateNewSite : Command
 	{
@@ -30,17 +30,27 @@ namespace TinyCQRS.Messages.Commands
 		}
 	}
 
-	public class UpdatePageContent : Command
+	public class RegisterPageContentChange : Command
 	{
 		public Guid PageId { get; set; }
 		public string NewContent { get; private set; }
 		public DateTime TimeOfChange { get; set; }
 
-		public UpdatePageContent(Guid crawlId, Guid pageId, string newContent, DateTime timeOfChange) : base(crawlId)
+		public RegisterPageContentChange(Guid crawlId, Guid pageId, string newContent, DateTime timeOfChange) : base(crawlId)
 		{
 			PageId = pageId;
 			NewContent = newContent;
 			TimeOfChange = timeOfChange;
+		}
+	}
+
+	public class MarkCrawlComplete : Command
+	{
+		public DateTime TimeOfCompletion { get; set; }
+
+		public MarkCrawlComplete(Guid crawlId, DateTime timeOfCompletion) : base(crawlId)
+		{
+			TimeOfCompletion = timeOfCompletion;
 		}
 	}
 }

@@ -1,33 +1,17 @@
 ﻿using System;
 
-namespace TinyCQRS.Messages
+namespace TinyCQRS.Contracts
 {
     public abstract class Message
     {
-        public Guid AggregateId { get; set; }
+		public Guid AggregateId { get; set; }
 		public Guid CorrelationId { get; set; }
 
-        protected Message()
-        {
+        protected Message() { }
 
-        }
-
-        protected Message(Guid aggregateId)
+        protected Message(Guid aggregateId) : this()
         {
             AggregateId = aggregateId;
         }
-    }
-
-    public abstract class Event : Message
-    {
-        public int Version { get; set; }
-
-
-        protected Event(Guid aggregateId) : base(aggregateId) { }
-    }
-
-    public abstract class Command : Message
-    {
-        protected Command(Guid aggregateId) : base(aggregateId) { }
     }
 }

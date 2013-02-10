@@ -1,60 +1,88 @@
 ﻿﻿using System;
-using TinyCQRS.Messages;
-using TinyCQRS.Messages.Events;
-using TinyCQRS.ReadModel.Interfaces;
-using TinyCQRS.ReadModel.Model;
+﻿using System.Collections.Generic;
+﻿using System.Linq;
+﻿using TinyCQRS.Contracts;
+﻿using TinyCQRS.Contracts.Events;
+﻿using TinyCQRS.Contracts.Models;
+﻿using TinyCQRS.ReadModel.Interfaces;
+
 namespace TinyCQRS.ReadModel.Generators
 {
 	public class CrawlReadModelGenerator :
-		IConsume<CrawlStarted>
+		IConsume<CrawlOrdered>,
+		IConsume<CrawlStarted>,
+		IConsume<CrawlCompleted>
 	{
 		private readonly IReadModelRepository<Crawl> _crawls;
+		private readonly IReadModelRepository<Page> _pages;
 
-		public CrawlReadModelGenerator(IReadModelRepository<Crawl> crawls)
+		public CrawlReadModelGenerator(IReadModelRepository<Crawl> crawls, IReadModelRepository<Page> pages)
 		{
 			_crawls = crawls;
+			_pages = pages;
 		}
 
-		//public void Process(PageChecked @event)
-		//{
-		//	var page = _pages.Get(@event.AggregateId);
-
-		//	page.Checks.Add(new PageCheck
-		//	{
-		//		Page = page,
-		//		PageId = page.Id,
-		//		TimeOfChange = @event.TimeOfChange
-		//	});
-
-		//	_pages.Update(page);
-		//	_pages.Commit();
-		//}
-
-		//public void Process(CrawlStarted @event)
-		//{
-		//	var site = _sites.Get(@event.AggregateId);
-
-		//	var crawl = _crawls.Create();
-		//	crawl.Id = Guid.NewGuid();
-		//	crawl.Site = site;
-		//	crawl.SiteId = site.Id;
-		//	crawl.StartTime = @event.StartTime;
-
-		//	_crawls.Add(crawl);
-
-		//	_crawls.Commit();
-		//}
-
-		public void Process(CrawlStarted @event)
+		public void Process(CrawlOrdered @event)
 		{
 			var crawl = _crawls.Create();
 
-			crawl.Id = @event.AggregateId;
+			crawl.GlobalId = @event.AggregateId;
 			crawl.SiteId = @event.SiteId;
-			crawl.StartTime = @event.StartTime;
+			crawl.OrderTime = @event.TimeOfOrder;
+			crawl.Status = CrawlStatus.Ordered;
 
 			_crawls.Add(crawl);
 			_crawls.Commit();
+		}
+
+		public void Process(CrawlStarted @event)
+		{
+			var crawl = _crawls.Get(@event.AggregateId);
+
+			crawl.StartTime = @event.StartTime;
+			crawl.Status = CrawlStatus.InProgess;
+
+			_crawls.Update(crawl);
+			_crawls.Commit();
+		}
+
+		public void Process(CrawlCompleted @event)
+		{
+			//var crawl = _crawls.Get(@event.AggregateId);
+
+			//crawl.Status = CrawlStatus.Completed;
+			//crawl.CompletionTime = @event.TimeOfCompletion;
+
+			//var last = _crawls
+			//	.Where(x => x.SiteId == crawl.SiteId && x.GlobalId != @event.AggregateId, x => x.Checks)
+			//	.OrderByDescending(x => x.CompletionTime)
+			//	.FirstOrDefault();
+
+			//var disappeared = new List<Guid>();
+
+			//if (last != null)
+			//{
+			//	var ids = last.Checks.Select(x => x.PageId);
+
+			//	var newIds = new List<Guid>(@event.ChangedPages);
+			//	newIds.AddRange(@event.UnchangedPages);
+
+			//	disappeared = ids.Except(newIds).ToList();
+
+			//	foreach (var page in crawl.Site.Pages.Where(x => disappeared.Contains(x.GlobalId)).ToList())
+			//	{
+			//		_pages.Delete(page);
+			//	}
+
+			//}
+
+			//crawl.RemovedPages = disappeared.Count;
+			//crawl.ChangedPages = @event.ChangedPages.Count();
+			//crawl.NewPages = @event.NewPages.Count();
+			//crawl.UnchangedPages = @event.UnchangedPages.Count();
+
+			//_crawls.Update(crawl);
+			//_crawls.Commit();
 		}
 	}
 }

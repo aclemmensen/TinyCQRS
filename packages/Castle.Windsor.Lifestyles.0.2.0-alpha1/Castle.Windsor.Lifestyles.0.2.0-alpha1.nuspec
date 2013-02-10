@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
+  <metadata>
+    <id>Castle.Windsor.Lifestyles</id>
+    <version>0.2.0-alpha1</version>
+    <authors>Mauricio Scheffer and contributors</authors>
+    <owners>Mauricio Scheffer and contributors</owners>
+    <licenseUrl>https://raw.github.com/castleprojectcontrib/Castle.Windsor.Lifestyles/master/license.txt</licenseUrl>
+    <projectUrl>https://www.ohloh.net/p/CastleWindsorLifestyles</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Additional lifestyles for Castle.Windsor</description>
+    <summary>Additional lifestyles for Castle.Windsor</summary>
+    <dependencies>
+      <dependency id="Castle.Windsor" version="3.0.0.4001" />
+    </dependencies>
+    <references>
+      <reference file="Castle.Windsor.Lifestyles.dll" />
+    </references>
+  </metadata>
+</package>

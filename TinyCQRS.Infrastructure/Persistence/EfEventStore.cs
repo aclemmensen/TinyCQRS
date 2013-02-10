@@ -2,16 +2,17 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using TinyCQRS.Contracts;
+using TinyCQRS.Domain;
 using TinyCQRS.Domain.Interfaces;
 using TinyCQRS.Infrastructure.Database;
-using TinyCQRS.Messages;
 
 namespace TinyCQRS.Infrastructure.Persistence
 {
-	public class EfEventStore : IEventStore
+	public class EfEventStore<T> : IEventStore<T> where T : IEventSourced
 	{
 		private readonly EventContext _context;
-		private readonly DbSet<EventEnvelope> _set;
+		private readonly DbSet<MessageEnvelope> _set;
 
 		private readonly Dictionary<Guid, List<Event>> _cache = new Dictionary<Guid, List<Event>>();
 
@@ -59,7 +60,7 @@ namespace TinyCQRS.Infrastructure.Persistence
 
 			_cache[@event.AggregateId].Add(@event);
 
-			_set.Add(new EventEnvelope(@event));
+			_set.Add(new MessageEnvelope(@event));
 
 			_context.SaveChanges();
 		}

@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Data;
 using System.Data.Entity;
-using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
+using TinyCQRS.Contracts;
 using TinyCQRS.ReadModel.Interfaces;
 
 namespace TinyCQRS.ReadModel.Infrastructure
 {
-	public class EfReadModelRepository<T> : IReadModelRepository<T> where T : Entity, new()
+	public class EfReadModelRepository<T> : IReadModelRepository<T> where T : class, IReadModel, new()
 	{
 		private readonly DbContext _context;
 
@@ -18,10 +19,10 @@ namespace TinyCQRS.ReadModel.Infrastructure
 			_context = context;
 		}
 
-		public T Get(Guid id)
+		public T Get(object id)
 		{
 			var result = Set.Find(id);
-
+			
 			if (result == null)
 			{
 				var msg = string.Format("No {0} with id {1} found", typeof (T).Name, id);
@@ -31,28 +32,32 @@ namespace TinyCQRS.ReadModel.Infrastructure
 			return result;
 		}
 
-		public IQueryable<T> All()
+		public IQueryable<T> All(params Expression<Func<T,object>>[] including)
 		{
-			return Set;
+			return Including(including);
 		}
 
-		public IQueryable<T> Where(Func<T, bool> predicate)
+		public IQueryable<T> Where(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] including)
 		{
-			return Set.Where(predicate).AsQueryable();
+			return Including(including).Where(predicate);
 		}
 
 		public void Add(T dto)
 		{
-			Guard(dto);
 			Set.Add(dto);
 			_context.Entry(dto).State = EntityState.Added;
 		}
 
 		public void Update(T dto)
 		{
-			Guard(dto);
 			Set.Attach(dto);
 			_context.Entry(dto).State = EntityState.Modified;
+		}
+
+		public void Delete(T dto)
+		{
+			Set.Remove(dto);
+			_context.Entry(dto).State = EntityState.Deleted;
 		}
 
 		public void Commit()
@@ -65,12 +70,11 @@ namespace TinyCQRS.ReadModel.Infrastructure
 			return Set.Create<T>();
 		}
 
-		private void Guard(T dto)
+		protected IQueryable<T> Including(Expression<Func<T, object>>[] expressions)
 		{
-			if (dto.Id == Guid.Empty)
-			{
-				throw new InvalidDataException("Cannot store entity with empty key.");
-			}
+			return expressions == null 
+				? Set 
+				: expressions.Aggregate<Expression<Func<T, object>>, IQueryable<T>>(Set, (current, expr) => current.Include(expr));
 		}
 	}
 }

@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Stateless</id>
+    <version>2.3.1.1</version>
+    <title>Stateless</title>
+    <authors>Nicholas Blumhardt</authors>
+    <owners>Nicholas Blumhardt</owners>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <projectUrl>http://code.google.com/p/stateless/</projectUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>Stateless is a hierarchical state machine framework based on Simple State Machine for Boo, but configured using C# 3.0.</description>
+    <summary>State machine framework.</summary>
+    <references>
+      <reference file="Stateless.dll" />
+    </references>
+  </metadata>
+</package>

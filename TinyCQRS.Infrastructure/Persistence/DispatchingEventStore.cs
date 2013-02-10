@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using TinyCQRS.Contracts;
+using TinyCQRS.Domain;
 using TinyCQRS.Domain.Interfaces;
-using TinyCQRS.Messages;
 
 namespace TinyCQRS.Infrastructure.Persistence
 {
-    public class DispatchingEventStore : IEventStore
+    public class DispatchingEventStore<T> : IEventStore<T> where T : IEventSourced
     {
-        private readonly IEventStore _eventStore;
+        private readonly IEventStore<T> _eventStore;
         private readonly IMessageBus _bus;
 
 		public int Processed { get { return _eventStore.Processed; } }
 
-        public DispatchingEventStore(IEventStore eventStore, IMessageBus bus)
+        public DispatchingEventStore(IEventStore<T> eventStore, IMessageBus bus)
         {
             _eventStore = eventStore;
             _bus = bus;

@@ -1,5 +1,7 @@
 ﻿using System.Data.Entity;
-using TinyCQRS.ReadModel.Model;
+using System.Diagnostics;
+using TinyCQRS.Contracts;
+using TinyCQRS.Contracts.Models;
 
 namespace TinyCQRS.ReadModel.Infrastructure
 {
@@ -14,6 +16,9 @@ namespace TinyCQRS.ReadModel.Infrastructure
 		public ReadModelContext() : base("TinyCQRS.ReadModel")
 		{
 			Configuration.ProxyCreationEnabled = true;
+			Configuration.LazyLoadingEnabled = true;
+
+			Trace.WriteLine("Created ReadModelContext");
 		}
 
 		public ReadModelContext(string name) : base(name) { }
@@ -30,10 +35,13 @@ namespace TinyCQRS.ReadModel.Infrastructure
 
 		protected override void OnModelCreating(DbModelBuilder modelBuilder)
 		{
+			modelBuilder.Entity<Entity>().HasKey(x => x.GlobalId);
+			modelBuilder.Entity<Dto>().HasKey(x => x.LocalId);
+
 			modelBuilder.Entity<PageCheck>()
-						.HasRequired(x => x.Page)
-						.WithMany(x => x.Checks)
-						.WillCascadeOnDelete(true);
+				.HasRequired(x => x.Page)
+				.WithMany(x => x.Checks)
+				.WillCascadeOnDelete(true);
 
 			modelBuilder.Entity<Crawl>()
 				.HasRequired(x => x.Site)
@@ -63,6 +71,12 @@ namespace TinyCQRS.ReadModel.Infrastructure
 			}
 
 			return 0;
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			Trace.WriteLine("Disposing ReadModelContext");
+			base.Dispose(disposing);
 		}
 	}
 }

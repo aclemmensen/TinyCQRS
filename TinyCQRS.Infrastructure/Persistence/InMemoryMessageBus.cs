@@ -2,17 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using ReflectionMagic;
-using TinyCQRS.Domain.Interfaces;
-using TinyCQRS.Messages;
+using TinyCQRS.Contracts;
 
 namespace TinyCQRS.Infrastructure.Persistence
 {
-    public class InMemoryMessageBus : IMessageBus
+	public class InMemoryMessageBus : IMessageBus
     {
-        private readonly List<Event> _events = new List<Event>();
+	    private readonly IResolver _resolver;
+	    private readonly List<Event> _events = new List<Event>();
 		private readonly Dictionary<Type, List<IConsume>> _subscribers = new Dictionary<Type, List<IConsume>>();
 
-		public void Subscribe(params IConsume[] subscribers)
+		public InMemoryMessageBus(IResolver resolver)
+		{
+			_resolver = resolver;
+			var consumers = resolver.ResolveAll<IConsume>().ToArray();
+			Subscribe(consumers);
+		}
+
+	    public void Subscribe(params IConsume[] subscribers)
         {
 			foreach (var subscriber in subscribers)
 			{
@@ -20,15 +27,14 @@ namespace TinyCQRS.Infrastructure.Persistence
 					.GetInterfaces()
 					.Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IConsume<>));
 
-				foreach (var type in types)
+				foreach (var type in types.Select(x => x.GenericTypeArguments[0]))
 				{
-					var eventType = type.GenericTypeArguments[0];
-					if (!_subscribers.ContainsKey(eventType))
+					if (!_subscribers.ContainsKey(type))
 					{
-						_subscribers[eventType] = new List<IConsume>();
+						_subscribers[type] = new List<IConsume>();
 					}
 
-					_subscribers[eventType].Add(subscriber);
+					_subscribers[type].Add(subscriber);
 				}
 			}
         }

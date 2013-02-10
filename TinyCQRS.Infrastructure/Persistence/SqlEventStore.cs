@@ -2,21 +2,24 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using TinyCQRS.Contracts;
+using TinyCQRS.Domain;
 using TinyCQRS.Domain.Interfaces;
-using TinyCQRS.Messages;
 
 namespace TinyCQRS.Infrastructure.Persistence
 {
-	public class SqlEventStore : IEventStore
+	public class SqlEventStore<T> : IEventStore<T> where T : EventSourced
 	{
 		private readonly string _connstr;
 
 		public int Processed { get { return _processed; } }
 		private int _processed;
+		private string _location;
 
 		public SqlEventStore(string connstr)
 		{
 			_connstr = connstr;
+			_location = typeof (AggregateRoot).IsAssignableFrom(typeof(T)) ? "Aggregates" : "Sagas";
 		}
 
 		public IEnumerable<Event> GetEventsFor(Guid id)
@@ -33,7 +36,7 @@ namespace TinyCQRS.Infrastructure.Persistence
 		{
 			_processed++;
 
-			var envelope = new EventEnvelope(@event);
+			var envelope = new MessageEnvelope(@event);
 
 			if (envelope.AggregateId == Guid.Empty)
 			{
@@ -41,10 +44,11 @@ namespace TinyCQRS.Infrastructure.Persistence
 			}
 
 			var affected = Execute(
-				"INSERT INTO EventEnvelopes (AggregateId, CorrelationId, Version, Created, Data, Type) VALUES(@id, @cid, @v, @c, @d, @t)",
+				string.Format("INSERT INTO {0} (AggregateId, MessageId, CorrelationId, Version, Created, Data, Type) VALUES(@id, @mid, @cid, @v, @c, @d, @t)", _location),
 				new Dictionary<string, object>
 				{
 					{"id", envelope.AggregateId},
+					{"mid", envelope.MessageId},
 					{"cid", envelope.CorrelationId},
 					{"v", envelope.Version},
 					{"c", envelope.Created},
@@ -63,16 +67,16 @@ namespace TinyCQRS.Infrastructure.Persistence
 		{
 			return 
 				Query(
-					"SELECT * FROM EventEnvelopes WHERE AggregateId = @id ORDER BY Version ASC",
+					string.Format("SELECT * FROM {0} WHERE AggregateId = @id ORDER BY Version ASC", _location),
 					EventFactory,
 					new Dictionary<string, object> { { "id", id } })
 					.Select(x => x.Event)
 					.ToList();
 		}
 
-		private static EventEnvelope EventFactory(IReadOnlyDictionary<string, object> data)
+		private static MessageEnvelope EventFactory(IReadOnlyDictionary<string, object> data)
 		{
-			return new EventEnvelope
+			return new MessageEnvelope
 			{
 				AggregateId = Guid.Parse(data["AggregateId"].ToString()),
 				CorrelationId = Guid.Parse(data["CorrelationId"].ToString()),
@@ -92,7 +96,7 @@ namespace TinyCQRS.Infrastructure.Persistence
 			{
 				foreach (var p in parameters)
 				{
-					cmd.Parameters.AddWithValue("@" + p.Key, p.Value);
+					cmd.Parameters.AddWithValue("@" + p.Key, p.Value ?? DBNull.Value);
 				}
 			}
 

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using TinyCQRS.Contracts;
+using TinyCQRS.Domain;
 using TinyCQRS.Domain.Interfaces;
-using TinyCQRS.Messages;
 
 namespace TinyCQRS.Infrastructure.Persistence
 {
-    public class InMemoryEventStore : IEventStore, IDisposable
+    public class InMemoryEventStore<T> : IEventStore<T>, IDisposable where T : IEventSourced
     {
         private readonly Dictionary<Guid,List<Event>> _events = new Dictionary<Guid, List<Event>>();
 

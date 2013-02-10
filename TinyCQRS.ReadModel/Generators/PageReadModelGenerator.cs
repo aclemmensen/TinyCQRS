@@ -1,7 +1,7 @@
-﻿using TinyCQRS.Messages;
-using TinyCQRS.Messages.Events;
+﻿using TinyCQRS.Contracts;
+using TinyCQRS.Contracts.Events;
+using TinyCQRS.Contracts.Models;
 using TinyCQRS.ReadModel.Interfaces;
-using TinyCQRS.ReadModel.Model;
 
 namespace TinyCQRS.ReadModel.Generators
 {
@@ -26,25 +26,25 @@ namespace TinyCQRS.ReadModel.Generators
 
 		public void Process(PageChecked @event)
 		{
-			var page = _pages.Get(@event.PageId);
+			//var page = _pages.Get(@event.PageId);
 			
-			if (!page.FirstSeen.HasValue)
-			{
-				page.FirstSeen = @event.TimeOfCheck;
-			}
+			//if (!page.FirstSeen.HasValue)
+			//{
+			//	page.FirstSeen = @event.TimeOfCheck;
+			//}
 
-			page.LastChecked = @event.TimeOfCheck;
+			//page.LastChecked = @event.TimeOfCheck;
 
-			page.Checks.Add(new PageCheck
-			{
-				Page = page,
-				PageId = page.Id,
-				TimeOfCheck = @event.TimeOfCheck,
-				CrawlId = @event.AggregateId
-			});
+			//page.Checks.Add(new PageCheck
+			//{
+			//	Page = page,
+			//	PageId = @event.PageId,
+			//	TimeOfCheck = @event.TimeOfCheck,
+			//	CrawlId = @event.AggregateId
+			//});
 			
-			_pages.Update(page);
-			_pages.Commit();
+			//_pages.Update(page);
+			//_pages.Commit();
 		}
 	}
 }

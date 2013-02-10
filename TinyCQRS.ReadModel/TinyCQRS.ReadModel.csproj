@@ -33,6 +33,27 @@
     <Reference Include="EntityFramework">
       <HintPath>..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
+    <Reference Include="MongoDB.Bson">
+      <HintPath>..\packages\mongocsharpdriver.1.7\lib\net35\MongoDB.Bson.dll</HintPath>
+    </Reference>
+    <Reference Include="MongoDB.Driver">
+      <HintPath>..\packages\mongocsharpdriver.1.7\lib\net35\MongoDB.Driver.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Common">
+      <HintPath>..\packages\ServiceStack.Common.3.9.35\lib\net35\ServiceStack.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Interfaces">
+      <HintPath>..\packages\ServiceStack.Common.3.9.35\lib\net35\ServiceStack.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.OrmLite">
+      <HintPath>..\packages\ServiceStack.OrmLite.SqlServer.3.9.35\lib\ServiceStack.OrmLite.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.OrmLite.SqlServer">
+      <HintPath>..\packages\ServiceStack.OrmLite.SqlServer.3.9.35\lib\ServiceStack.OrmLite.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Text">
+      <HintPath>..\packages\ServiceStack.Text.3.9.35\lib\net35\ServiceStack.Text.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
@@ -50,6 +71,8 @@
     <Compile Include="Infrastructure\CachingReadModelRepository.cs" />
     <Compile Include="Infrastructure\EfReadModelRepository.cs" />
     <Compile Include="Infrastructure\InMemoryReadModelRepository.cs" />
+    <Compile Include="Infrastructure\MongoReadModelRepository.cs" />
+    <Compile Include="Infrastructure\OrmLiteReadModelRepository.cs" />
     <Compile Include="Infrastructure\ReadModelContext.cs" />
     <Compile Include="Migrations\201302052122506_Init.cs" />
     <Compile Include="Migrations\201302052122506_Init.Designer.cs">
@@ -59,18 +82,31 @@
     <Compile Include="Migrations\201302052137166_CrawlStartTime.Designer.cs">
       <DependentUpon>201302052137166_CrawlStartTime.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201302071855164_MoreCrawlDetails.cs" />
+    <Compile Include="Migrations\201302071855164_MoreCrawlDetails.Designer.cs">
+      <DependentUpon>201302071855164_MoreCrawlDetails.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201302071857067_FixCrawlTimestamps.cs" />
+    <Compile Include="Migrations\201302071857067_FixCrawlTimestamps.Designer.cs">
+      <DependentUpon>201302071857067_FixCrawlTimestamps.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201302072229114_CrawlCompletionTime.cs" />
+    <Compile Include="Migrations\201302072229114_CrawlCompletionTime.Designer.cs">
+      <DependentUpon>201302072229114_CrawlCompletionTime.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201302090212268_CrawlCounts.cs" />
+    <Compile Include="Migrations\201302090212268_CrawlCounts.Designer.cs">
+      <DependentUpon>201302090212268_CrawlCounts.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Model\CrawlJob.cs" />
-    <Compile Include="Model\Page.cs" />
-    <Compile Include="Interfaces\IDto.cs" />
     <Compile Include="Interfaces\IReadModelRepository.cs" />
-    <Compile Include="Model\Site.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReadModelExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TinyCQRS.Messages\TinyCQRS.Messages.csproj">
+    <ProjectReference Include="..\TinyCQRS.Messages\TinyCQRS.Contracts.csproj">
       <Project>{01bfd3a7-b73a-4de4-92af-d7cdc801ee2d}</Project>
-      <Name>TinyCQRS.Messages</Name>
+      <Name>TinyCQRS.Contracts</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -83,6 +119,18 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201302052137166_CrawlStartTime.resx">
       <DependentUpon>201302052137166_CrawlStartTime.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201302071855164_MoreCrawlDetails.resx">
+      <DependentUpon>201302071855164_MoreCrawlDetails.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201302071857067_FixCrawlTimestamps.resx">
+      <DependentUpon>201302071857067_FixCrawlTimestamps.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201302072229114_CrawlCompletionTime.resx">
+      <DependentUpon>201302072229114_CrawlCompletionTime.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201302090212268_CrawlCounts.resx">
+      <DependentUpon>201302090212268_CrawlCounts.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

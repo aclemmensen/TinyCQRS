@@ -3,13 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinyCQRS.Domain", "TinyCQRS.Domain\TinyCQRS.Domain.csproj", "{5D1CD87F-FE09-40FC-9146-CAABC456E518}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinyCQRS.Messages", "TinyCQRS.Messages\TinyCQRS.Messages.csproj", "{01BFD3A7-B73A-4DE4-92AF-D7CDC801EE2D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinyCQRS.Contracts", "TinyCQRS.Messages\TinyCQRS.Contracts.csproj", "{01BFD3A7-B73A-4DE4-92AF-D7CDC801EE2D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinyCQRS.Infrastructure", "TinyCQRS.Infrastructure\TinyCQRS.Infrastructure.csproj", "{FEDCEEF9-B80C-413F-A2A9-C13CFFEB53A9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinyCQRS.Client", "TinyCQRS.Client\TinyCQRS.Client.csproj", "{F3C162E9-3CB5-4AEA-B10D-B518C153167D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinyCQRS.ReadModel", "TinyCQRS.ReadModel\TinyCQRS.ReadModel.csproj", "{55CBEF31-2765-4935-90FC-29A4078AFE96}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinyCQRS.WebClient", "TinyCQRS.WebClient\TinyCQRS.WebClient.csproj", "{B07A3FB6-3B40-412F-A2D3-B9F5D29E52BD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinyCQRS.Application", "TinyCQRS.Application\TinyCQRS.Application.csproj", "{FEA8C11A-29B5-4E39-ADAF-0B5135A99D9D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,6 +41,14 @@ Global
 		{55CBEF31-2765-4935-90FC-29A4078AFE96}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{55CBEF31-2765-4935-90FC-29A4078AFE96}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{55CBEF31-2765-4935-90FC-29A4078AFE96}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B07A3FB6-3B40-412F-A2D3-B9F5D29E52BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B07A3FB6-3B40-412F-A2D3-B9F5D29E52BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B07A3FB6-3B40-412F-A2D3-B9F5D29E52BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B07A3FB6-3B40-412F-A2D3-B9F5D29E52BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FEA8C11A-29B5-4E39-ADAF-0B5135A99D9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEA8C11A-29B5-4E39-ADAF-0B5135A99D9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEA8C11A-29B5-4E39-ADAF-0B5135A99D9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEA8C11A-29B5-4E39-ADAF-0B5135A99D9D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -5,7 +5,7 @@ namespace TinyCQRS.Infrastructure.Database
 {
 	public class EventContext : DbContext
 	{
-		public DbSet<EventEnvelope> Events { get; set; }
+		public DbSet<MessageEnvelope> Events { get; set; }
 
 		public EventContext() : base("TinyCQRS.Events") { }
 
@@ -13,7 +13,7 @@ namespace TinyCQRS.Infrastructure.Database
 
 		protected override void OnModelCreating(DbModelBuilder modelBuilder)
 		{
-			modelBuilder.Entity<EventEnvelope>()
+			modelBuilder.Entity<MessageEnvelope>()
 						.Ignore(x => x.Event);
 
 			base.OnModelCreating(modelBuilder);

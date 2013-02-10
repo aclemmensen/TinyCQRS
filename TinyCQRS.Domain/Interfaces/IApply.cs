@@ -1,4 +1,4 @@
-﻿using TinyCQRS.Messages;
+﻿using TinyCQRS.Contracts;
 
 namespace TinyCQRS.Domain.Interfaces
 {

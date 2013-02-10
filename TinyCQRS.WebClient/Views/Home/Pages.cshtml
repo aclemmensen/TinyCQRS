@@ -1,0 +1,46 @@
+﻿@using TinyCQRS.Contracts.Models
+@model TinyCQRS.WebClient.Models.SitePagesViewModel
+
+@section Featured
+{
+    <section class="featured">
+        <div class="content-wrapper">
+            @Html.ActionLink("Recrawl site", "OrderCrawlFor", "Crawl", new { id = Model.Site.GlobalId }, null)
+        </div>
+    </section>
+}
+
+<ul>
+    @*
+    @foreach (var crawl in Model.Site.Crawls.OrderByDescending(x => x.OrderTime))
+    {
+        <li>
+            @*
+        @crawl.Id: @crawl.OrderTime (@crawl.Status)
+        (@crawl.Checks.Count pages)
+        @if (crawl.Status == CrawlStatus.Ordered)
+        {
+            @Html.ActionLink("Start", "StartCrawl", "Crawl", new { id = crawl.Id, siteId = Model.Site.Id }, null)
+        }
+        </li>
+    }
+    *@
+</ul>
+
+<table>
+    <tr>
+        <th>URL</th>
+        <th>First seen</th>
+        <th>Last checked</th>
+        <th>Check count</th>
+    </tr>
+    @foreach (var page in Model.Pages)
+    {
+        <tr>
+            <td>@page.Url</td>
+            <td>@page.FirstSeen</td>
+            <td>@page.LastChecked</td>
+            <td>@page.Checks.Count checks</td>
+        </tr>
+    }
+</table>

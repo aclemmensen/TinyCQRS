@@ -1,15 +1,27 @@
 ﻿using System;
 
-namespace TinyCQRS.Messages.Events
+namespace TinyCQRS.Contracts.Events
 {
-	public class CrawlStarted : Event
+	public class CrawlOrdered : Event
 	{
 		public Guid SiteId { get; set; }
-		public DateTime StartTime { get; set; }
+		public DateTime TimeOfOrder { get; set; }
 
-		public CrawlStarted(Guid crawlId, Guid siteId, DateTime startTime) : base(crawlId)
+		public CrawlOrdered(Guid crawlId, Guid siteId, DateTime timeOfOrder) : base(crawlId)
 		{
 			SiteId = siteId;
+			TimeOfOrder = timeOfOrder;
+		}
+	}
+
+	public class CrawlStarted : Event
+	{
+		public string CrawlerName { get; set; }
+		public DateTime StartTime { get; set; }
+
+		public CrawlStarted(Guid crawlId, string crawlerName, DateTime startTime) : base(crawlId)
+		{
+			CrawlerName = crawlerName;
 			StartTime = startTime;
 		}
 	}

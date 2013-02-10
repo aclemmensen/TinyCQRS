@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using TinyCQRS.Contracts;
 using TinyCQRS.ReadModel.Interfaces;
 
 namespace TinyCQRS.ReadModel.Infrastructure
 {
     public class InMemoryReadModelRepository<T> : IReadModelRepository<T> where T : Entity, new()
     {
-        private readonly Dictionary<Guid,T> _data = new Dictionary<Guid, T>();
+        private readonly Dictionary<object,T> _data = new Dictionary<object, T>();
 
-	    public IQueryable<T> Where(Func<T, bool> predicate)
+		public IQueryable<T> Where(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] including)
 	    {
-		    return _data.Values.Where(predicate).AsQueryable();
+		    return _data.Values.Where(predicate.Compile()).AsQueryable();
 	    }
 
 	    public void Add(T dto)
@@ -25,6 +27,11 @@ namespace TinyCQRS.ReadModel.Infrastructure
 		    _data[dto.Id] = dto;
 	    }
 
+	    public void Delete(T dto)
+	    {
+		    _data.Remove(dto.Id);
+	    }
+
 	    public void Commit()
 	    {
 		    // NOOP
@@ -35,7 +42,7 @@ namespace TinyCQRS.ReadModel.Infrastructure
 		    return new T();
 	    }
 
-	    public T Get(Guid id)
+	    public T Get(object id)
         {
             T dto;
             if (_data.TryGetValue(id, out dto))
@@ -49,7 +56,7 @@ namespace TinyCQRS.ReadModel.Infrastructure
                 id.ToString()));
         }
 
-		public IQueryable<T> All()
+		public IQueryable<T> All(params Expression<Func<T, object>>[] including)
         {
             return _data.Values.AsQueryable();
         }
