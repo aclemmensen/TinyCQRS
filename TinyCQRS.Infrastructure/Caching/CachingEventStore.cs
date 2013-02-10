@@ -7,21 +7,21 @@ using TinyCQRS.Domain.Interfaces;
 
 namespace TinyCQRS.Infrastructure.Caching
 {
-	public class CachingEventStore<T> : IEventStore<T> where T : IEventSourced
+	public class CachingEventStore : IEventStore
 	{
-		private readonly IEventStore<T> _innerEventStore;
-		private readonly Dictionary<Type,List<Event>> _data = new Dictionary<Type, List<Event>>();
+		private readonly IEventStore _innerEventStore;
+		private readonly Dictionary<Guid,List<Event>> _data = new Dictionary<Guid, List<Event>>();
 
 		public int Processed { get; private set; }
 
-		public CachingEventStore(IEventStore<T> innerEventStore)
+		public CachingEventStore(IEventStore innerEventStore)
 		{
 			_innerEventStore = innerEventStore;
 		}
 
 		public IEnumerable<Event> GetEventsFor(Guid id)
 		{
-			return Get().Where(x => x.AggregateId == id).OrderBy(x => x.Version);
+			return Get(id).OrderBy(x => x.Version);
 		}
 
 		public Event GetLastEventFor(Guid id)
@@ -29,33 +29,33 @@ namespace TinyCQRS.Infrastructure.Caching
 			return GetEventsFor(id).LastOrDefault();
 		}
 
-		public void StoreEvent(Event @event)
+		public void StoreEvent<TAggregate>(Event @event) where TAggregate : IEventSourced
 		{
 			Processed++;
 
-			_innerEventStore.StoreEvent(@event);
+			_innerEventStore.StoreEvent<TAggregate>(@event);
 
 			Add(@event);
 		}
 
 		private void Add(Event @event)
 		{
-			if (!_data.ContainsKey(typeof (T)))
+			if (!_data.ContainsKey(@event.AggregateId))
 			{
-				_data[typeof(T)] = new List<Event>();
+				_data[@event.AggregateId] = new List<Event>();
 			}
 
-			_data[typeof(T)].Add(@event);
+			_data[@event.AggregateId].Add(@event);
 		}
 
-		private IEnumerable<Event> Get()
+		private IEnumerable<Event> Get(Guid id)
 		{
-			if (!_data.ContainsKey(typeof (T)))
+			if (!_data.ContainsKey(id))
 			{
-				_data[typeof(T)] = new List<Event>();
+				_data[id] = new List<Event>(_innerEventStore.GetEventsFor(id));
 			}
 
-			return _data[typeof (T)];
+			return _data[id];
 		}
 	}
 }

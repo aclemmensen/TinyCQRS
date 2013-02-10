@@ -48,41 +48,46 @@ namespace TinyCQRS.ReadModel.Generators
 
 		public void Process(CrawlCompleted @event)
 		{
-			//var crawl = _crawls.Get(@event.AggregateId);
+			var crawl = _crawls.Get(@event.AggregateId);
 
-			//crawl.Status = CrawlStatus.Completed;
-			//crawl.CompletionTime = @event.TimeOfCompletion;
+			crawl.Status = CrawlStatus.Completed;
+			crawl.CompletionTime = @event.TimeOfCompletion;
 
-			//var last = _crawls
-			//	.Where(x => x.SiteId == crawl.SiteId && x.GlobalId != @event.AggregateId, x => x.Checks)
-			//	.OrderByDescending(x => x.CompletionTime)
-			//	.FirstOrDefault();
+			var last = _crawls
+				.Where(x => 
+					x.SiteId == crawl.SiteId && 
+					x.GlobalId != @event.AggregateId && 
+					x.Status == CrawlStatus.Completed)
+				.OrderByDescending(x => x.CompletionTime)
+				.FirstOrDefault();
 
-			//var disappeared = new List<Guid>();
+			var disappeared = new List<Guid>();
 
-			//if (last != null)
-			//{
-			//	var ids = last.Checks.Select(x => x.PageId);
+			if (last != null)
+			{
+				var ids = last.Checks.Select(x => x.PageId);
 
-			//	var newIds = new List<Guid>(@event.ChangedPages);
-			//	newIds.AddRange(@event.UnchangedPages);
+				var newIds = new List<Guid>(@event.ChangedPages);
+				newIds.AddRange(@event.UnchangedPages);
 
-			//	disappeared = ids.Except(newIds).ToList();
+				disappeared = ids.Except(newIds).ToList();
 
-			//	foreach (var page in crawl.Site.Pages.Where(x => disappeared.Contains(x.GlobalId)).ToList())
-			//	{
-			//		_pages.Delete(page);
-			//	}
+				var currentPages = _pages.Where(x => x.SiteId == crawl.SiteId);
 
-			//}
+				foreach (var page in currentPages.Where(x => disappeared.Contains(x.GlobalId)).ToList())
+				{
+					_pages.Delete(page);
+				}
 
-			//crawl.RemovedPages = disappeared.Count;
-			//crawl.ChangedPages = @event.ChangedPages.Count();
-			//crawl.NewPages = @event.NewPages.Count();
-			//crawl.UnchangedPages = @event.UnchangedPages.Count();
+			}
 
-			//_crawls.Update(crawl);
-			//_crawls.Commit();
+			crawl.RemovedPages = disappeared.Count;
+			crawl.ChangedPages = @event.ChangedPages.Count();
+			crawl.NewPages = @event.NewPages.Count();
+			crawl.UnchangedPages = @event.UnchangedPages.Count();
+
+			_crawls.Update(crawl);
+			_crawls.Commit();
 		}
 	}
 }

@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="Crosscutting\Installers.cs" />
     <Compile Include="Crosscutting\WindsorResolverAdapter.cs" />
+    <Compile Include="Modules\Administration\ProjectionService.cs" />
     <Compile Include="Modules\Crawler\Crawler.cs" />
     <Compile Include="Modules\Crawler\SetupService.cs" />
     <Compile Include="Modules\Crawler\SiteService.cs" />

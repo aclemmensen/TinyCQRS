@@ -24,28 +24,28 @@ namespace TinyCQRS.Application.Crosscutting
 		{
 			_container = container;
 			
-			container.Register(Classes.FromAssemblyContaining(typeof (IHandle<>)).BasedOn<IHandler>().WithServiceAllInterfaces().LifestylePerWebRequest());
-			container.Register(Component.For<IMessageBus>().ImplementedBy<InMemoryMessageBus>().LifeStyle.PerWebRequest);
-			container.Register(Component.For(typeof (ICache<>)).ImplementedBy(typeof (MemoryCache<>)).LifeStyle.PerWebRequest);
-			container.Register(Component.For(typeof (IRepository<>)).ImplementedBy(typeof (EventedAggregateRepository<>)).LifeStyle.PerWebRequest);
-			container.Register(Component.For(typeof (ISagaRepository<>)).ImplementedBy(typeof (EventedSagaRepository<>)).LifeStyle.PerWebRequest);
-			container.Register(Component.For<ICommandDispatcher>().ImplementedBy<CommandDispatcher>().LifeStyle.PerWebRequest);
+			container.Register(Classes.FromAssemblyContaining(typeof (IHandle<>)).BasedOn<IHandler>().WithServiceAllInterfaces().Configure(x => x.LifeStyle.HybridPerWebRequestPerThread()));
+			container.Register(Component.For<IMessageBus>().ImplementedBy<InMemoryMessageBus>().LifeStyle.HybridPerWebRequestPerThread());
+			container.Register(Component.For(typeof(ICache<>)).ImplementedBy(typeof(MemoryCache<>)).LifeStyle.HybridPerWebRequestPerThread());
+			container.Register(Component.For(typeof(IRepository<>)).ImplementedBy(typeof(EventedRepository<>)).LifeStyle.HybridPerWebRequestPerThread());
+			container.Register(Component.For(typeof(ISagaRepository<>)).ImplementedBy(typeof(SagaRepository<>)).LifeStyle.HybridPerWebRequestPerThread());
+			container.Register(Component.For<ICommandDispatcher>().ImplementedBy<CommandDispatcher>().LifeStyle.HybridPerWebRequestPerThread());
 			container.Register(Component.For<ILogger>().ImplementedBy<TraceLogger>());
 			container.Register(Component.For<IWindsorContainer>().Instance(container));
 			container.Register(Component.For<IResolver>().ImplementedBy<WindsorResolverAdapter>());
 
-			container.Register(Component.For(typeof(IEventStore<>)).ImplementedBy(typeof(CachingEventStore<>)).LifeStyle.PerWebRequest);
+			container.Register(Component.For(typeof(IEventStore)).ImplementedBy(typeof(CachingEventStore)).LifeStyle.HybridPerWebRequestPerThread());
 
 			container.Register(
-				Classes.FromAssemblyContaining<SiteReadModelGenerator>().BasedOn<IConsume>().WithServiceAllInterfaces().LifestylePerWebRequest(),
-				Classes.FromAssemblyContaining<CrawlJobCommandHandler>().BasedOn<IConsume>().WithServiceAllInterfaces().LifestylePerWebRequest(),
-				Classes.FromAssemblyContaining<Crawler>().BasedOn<IConsume>().WithServiceAllInterfaces().LifestylePerWebRequest());
+				Classes.FromAssemblyContaining<SiteReadModelGenerator>().BasedOn<IConsume>().WithServiceAllInterfaces().Configure(x => x.LifeStyle.HybridPerWebRequestPerThread()),
+				Classes.FromAssemblyContaining<CrawlCoordinator>().BasedOn<IConsume>().WithServiceAllInterfaces().Configure(x => x.LifeStyle.HybridPerWebRequestPerThread()),
+				Classes.FromAssemblyContaining<Crawler>().BasedOn<IConsume>().WithServiceAllInterfaces().Configure(x => x.LifeStyle.HybridPerWebRequestPerThread()));
 
 			container.Register(Classes
 				.FromAssemblyContaining<SiteCrawlService>()
 				.BasedOn<IService>()
 				.WithServiceDefaultInterfaces()
-				.LifestylePerWebRequest());
+				.Configure(x => x.LifeStyle.HybridPerWebRequestPerThread()));
 		}
 	}
 
@@ -66,13 +66,14 @@ namespace TinyCQRS.Application.Crosscutting
 		{
 			base.Install(container, store);
 
-			container.Register(Component.For(typeof(IEventStore<>)).ImplementedBy(typeof(SqlEventStore<>)).DependsOn(new { connstr = _eventConnstr }).LifeStyle.PerWebRequest);
-			container.Register(Component.For<DbContext>().ImplementedBy<ReadModelContext>().LifeStyle.PerWebRequest);
+			//container.Register(Component.For<IEventStore>().ImplementedBy<SqlEventStore>().DependsOn(new { connstr = _eventConnstr }).LifeStyle.HybridPerWebRequestPerThread());
+			container.Register(Component.For<IEventStore>().ImplementedBy<OrmLiteEventStore>().DependsOn(new { connstr = _eventConnstr }).LifeStyle.HybridPerWebRequestPerThread());
+			//container.Register(Component.For<DbContext>().ImplementedBy<ReadModelContext>().LifeStyle.HybridPerWebRequestTransient());
 
 			container.Register(
 				//Component.For(typeof (IReadModelRepository<>)).ImplementedBy(typeof (CachingReadModelRepository<>)).LifeStyle.PerWebRequest,
-				Component.For(typeof(IReadModelRepository<>)).ImplementedBy(typeof(MongoReadModelRepository<>)).DependsOn(new { connstr = _mongoConnstr }).LifeStyle.PerWebRequest);
-				//Component.For(typeof (IReadModelRepository<>)).ImplementedBy(typeof (OrmLiteReadModelRepository<>)).DependsOn(new { connstr = _readConnstr }).LifeStyle.PerWebRequest);
+				Component.For(typeof(IReadModelRepository<>)).ImplementedBy(typeof(MongoReadModelRepository<>)).DependsOn(new { connstr = _mongoConnstr }).LifeStyle.HybridPerWebRequestPerThread());
+				//Component.For(typeof (IReadModelRepository<>)).ImplementedBy(typeof (OrmLiteReadModelRepository<>)).DependsOn(new { connstr = _readConnstr }).LifeStyle.HybridPerWebRequestPerThread);
 				//Component.For(typeof (IReadModelRepository<>)).ImplementedBy(typeof (EfReadModelRepository<>)).LifeStyle.PerWebRequest);
 		}
 	}
@@ -83,7 +84,7 @@ namespace TinyCQRS.Application.Crosscutting
 		{
 			base.Install(container, store);
 
-			container.Register(Component.For(typeof(IEventStore<>)).ImplementedBy(typeof(InMemoryEventStore<>)));
+			container.Register(Component.For(typeof(IEventStore)).ImplementedBy(typeof(InMemoryEventStore)));
 			container.Register(Component.For(typeof(IReadModelRepository<>)).ImplementedBy(typeof(InMemoryReadModelRepository<>)));
 		}
 	}

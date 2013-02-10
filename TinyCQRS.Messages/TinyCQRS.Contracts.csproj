@@ -40,6 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Command.cs" />
+    <Compile Include="Commands\AdminCommands.cs" />
     <Compile Include="Commands\CrawlCommands.cs" />
     <Compile Include="Commands\SiteCommands.cs" />
     <Compile Include="Event.cs" />
@@ -53,6 +54,7 @@
     <Compile Include="Models\PageCheck.cs" />
     <Compile Include="Models\PageInfo.cs" />
     <Compile Include="Models\Site.cs" />
+    <Compile Include="Services\IProjectionService.cs" />
     <Compile Include="Services\ISiteCrawlService.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

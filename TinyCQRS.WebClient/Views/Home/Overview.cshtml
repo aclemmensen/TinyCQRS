@@ -5,3 +5,26 @@
 }
 
 <h2>Site Overview</h2>
+
+<strong>@Model.Site.PageCount pages</strong>
+
+<h3>Broken links</h3>
+<p>
+    <strong>Total:</strong> @Model.Site.BrokenLinksCount.Total<br />
+    <strong>New:</strong> @Model.Site.BrokenLinksCount.New<br />
+    <strong>Affecting:</strong> @Model.Site.BrokenLinksCount.Affecting pages
+</p>
+
+<h3>Spelling mistakes</h3>
+<p>
+    <strong>Total:</strong> @Model.Site.MisspellingsCount.Total<br />
+    <strong>New:</strong> @Model.Site.MisspellingsCount.New<br />
+    <strong>Affecting:</strong> @Model.Site.BrokenLinksCount.Affecting pages
+</p>
+
+@foreach (var item in Model.Site.History.OrderBy(x => x.Time))
+{
+    <p>@item.Time: @item.BrokenLinks broken links, @item.Misspellings misspellings</p>
+}
+
+@Html.ActionLink("Check whole site now", "OrderCrawlFor", "Crawl", new {id = Model.Site.GlobalId}, null)

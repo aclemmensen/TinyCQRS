@@ -7,7 +7,7 @@ using TinyCQRS.Domain.Interfaces;
 
 namespace TinyCQRS.Infrastructure.Persistence
 {
-    public class InMemoryEventStore<T> : IEventStore<T>, IDisposable where T : IEventSourced
+    public class InMemoryEventStore : IEventStore, IDisposable
     {
         private readonly Dictionary<Guid,List<Event>> _events = new Dictionary<Guid, List<Event>>();
 
@@ -33,7 +33,7 @@ namespace TinyCQRS.Infrastructure.Persistence
 			return GetEventsFor(id).LastOrDefault();
 		}
 
-        public void StoreEvent(Event @event)
+        public void StoreEvent<TAggregate>(Event @event) where TAggregate : IEventSourced
         {
 	        _processed++;
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace TinyCQRS.Contracts.Events
 {
@@ -36,6 +37,45 @@ namespace TinyCQRS.Contracts.Events
 		{
 			PageId = pageId;
 			TimeOfCheck = timeOfCheck;
+		}
+	}
+
+	public class SpellcheckCompleted : Event
+	{
+		public SpellcheckCompleted(Guid pageId) : base(pageId)
+		{
+		}
+	}
+
+	public class CrawlCompleted : Event
+	{
+		public Guid SiteId { get; set; }
+		public DateTime TimeOfCompletion { get; set; }
+		public int PagesProcessed { get; set; }
+
+		public IEnumerable<Guid> NewPages { get; set; }
+		public IEnumerable<Guid> ChangedPages { get; set; }
+		public IEnumerable<Guid> UnchangedPages { get; set; }
+		public IEnumerable<Guid> MissingPages { get; set; }
+
+		public CrawlCompleted(
+			Guid crawlId,
+			Guid siteId,
+			DateTime timeOfCompletion,
+			int pagesProcessed,
+			IEnumerable<Guid> newPages,
+			IEnumerable<Guid> changedPages,
+			IEnumerable<Guid> unchangedPages,
+			IEnumerable<Guid> missingPages)
+			: base(crawlId)
+		{
+			SiteId = siteId;
+			TimeOfCompletion = timeOfCompletion;
+			PagesProcessed = pagesProcessed;
+			NewPages = newPages;
+			ChangedPages = changedPages;
+			UnchangedPages = unchangedPages;
+			MissingPages = missingPages;
 		}
 	}
 }

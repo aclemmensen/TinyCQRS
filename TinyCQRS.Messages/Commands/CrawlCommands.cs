@@ -50,4 +50,28 @@ namespace TinyCQRS.Contracts.Commands
 			TimeOfOrder = timeOfOrder;
 		}
 	}
+
+	public class SpellcheckPage : Command
+	{
+		public Guid PageId { get; set; }
+		public string NewContent { get; set; }
+
+		public SpellcheckPage(Guid crawlId, Guid pageId, string newContent) : base(crawlId)
+		{
+			PageId = pageId;
+			NewContent = newContent;
+		}
+	}
+
+	public class ValidatePage : Command
+	{
+		public Guid PageId { get; set; }
+		public string NewContent { get; set; }
+
+		public ValidatePage(Guid crawlId, Guid pageId, string newContent) : base(crawlId)
+		{
+			PageId = pageId;
+			NewContent = newContent;
+		}
+	}
 }

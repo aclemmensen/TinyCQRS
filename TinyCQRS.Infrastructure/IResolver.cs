@@ -5,10 +5,15 @@ namespace TinyCQRS.Infrastructure
 {
 	public interface IResolver
 	{
-		object Resolve(Type type);
-		T Resolve<T>();
+		IRelease<object> Resolve(Type type);
+		IRelease<T> Resolve<T>();
 
-		object[] ResolveAll(Type type);
-		IEnumerable<T> ResolveAll<T>();
+		IRelease<object[]> ResolveAll(Type type);
+		IRelease<IEnumerable<T>> ResolveAll<T>();
+	}
+
+	public interface IRelease<T> : IDisposable
+	{
+		T Instance { get; }
 	}
 }

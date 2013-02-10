@@ -17,11 +17,24 @@ namespace TinyCQRS.ReadModel.Infrastructure
 			_innerRepository = innerRepository;
 		}
 
+		public T Find(object id)
+		{
+			T obj;
+			if (!_cache.TryGetValue(id, out obj))
+			{
+				_cache[id] = _innerRepository.Find(id);
+			}
+
+			return _cache[id];
+		}
+
 		public T Get(object id)
 		{
-			if (!_cache.ContainsKey(id))
+			var result = Find(id);
+
+			if (result == null)
 			{
-				_cache[id] = _innerRepository.Get(id);
+				throw new ApplicationException(string.Format("No {0} with id {1} was found", typeof(T).Name, id));
 			}
 
 			return _cache[id];

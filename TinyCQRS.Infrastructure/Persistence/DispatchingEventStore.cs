@@ -6,14 +6,14 @@ using TinyCQRS.Domain.Interfaces;
 
 namespace TinyCQRS.Infrastructure.Persistence
 {
-    public class DispatchingEventStore<T> : IEventStore<T> where T : IEventSourced
+    public class DispatchingEventStore : IEventStore
     {
-        private readonly IEventStore<T> _eventStore;
+        private readonly IEventStore _eventStore;
         private readonly IMessageBus _bus;
 
 		public int Processed { get { return _eventStore.Processed; } }
 
-        public DispatchingEventStore(IEventStore<T> eventStore, IMessageBus bus)
+        public DispatchingEventStore(IEventStore eventStore, IMessageBus bus)
         {
             _eventStore = eventStore;
             _bus = bus;
@@ -40,9 +40,9 @@ namespace TinyCQRS.Infrastructure.Persistence
 		    return _eventStore.GetLastEventFor(id);
 	    }
 
-	    public void StoreEvent(Event @event)
+	    public void StoreEvent<TAggregate>(Event @event) where TAggregate : IEventSourced
         {
-            _eventStore.StoreEvent(@event);
+            _eventStore.StoreEvent<TAggregate>(@event);
             _bus.Notify(@event);
         }
     }

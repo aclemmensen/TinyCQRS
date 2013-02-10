@@ -9,5 +9,5 @@
 
 @foreach (var site in Model.Sites)
 {
-    <h2>@Html.ActionLink(site.GlobalId.ToString(), "Pages", new {id = site.GlobalId}): @site.Name (@site.Root) (@site.PageCount pages)</h2>
+    <h2>@Html.ActionLink(site.GlobalId.ToString(), "Overview", new {id = site.GlobalId}): @site.Name (@site.Root) (@site.PageCount pages)</h2>
 }

@@ -6,17 +6,28 @@ using TinyCQRS.Contracts;
 
 namespace TinyCQRS.Infrastructure.Persistence
 {
-	public class InMemoryMessageBus : IMessageBus
+	public class InMemoryMessageBus : IMessageBus, IDisposable
     {
-	    private readonly IResolver _resolver;
-	    private readonly List<Event> _events = new List<Event>();
+		private readonly IResolver _resolver;
+		private readonly ILogger _logger;
 		private readonly Dictionary<Type, List<IConsume>> _subscribers = new Dictionary<Type, List<IConsume>>();
+		private IRelease<IEnumerable<IConsume>> _consumers;
+		private bool _initialized;
 
-		public InMemoryMessageBus(IResolver resolver)
+		public InMemoryMessageBus(IResolver resolver, ILogger logger)
 		{
 			_resolver = resolver;
-			var consumers = resolver.ResolveAll<IConsume>().ToArray();
-			Subscribe(consumers);
+			_logger = logger;
+		}
+
+		private void Initialize()
+		{
+			if (_initialized) return;
+
+			_consumers = _resolver.ResolveAll<IConsume>();
+			Subscribe(_consumers.Instance.ToArray());
+
+			_initialized = true;
 		}
 
 	    public void Subscribe(params IConsume[] subscribers)
@@ -41,10 +52,24 @@ namespace TinyCQRS.Infrastructure.Persistence
 
         public void Notify(Event @event)
         {
+			// Do lazy initialization to avoid problems with circular dependencies.
+			// This is definitely not pretty, but it'll ensure the entire dependency
+			// chain can be resolved before we hook up event consumers.
+			if (!_initialized)
+			{
+				Initialize();
+			}
+
             foreach (var subscriber in _subscribers.Where(x => x.Key == @event.GetType()).SelectMany(x => x.Value))
             {
+				_logger.Log("Consumer {0} processing {1}", subscriber.GetType().Name, @event.GetType().Name);
                 subscriber.AsDynamic().Process(@event);
             }
         }
+
+		public void Dispose()
+		{
+			_consumers.Dispose();
+		}
     }
 }

@@ -8,6 +8,8 @@ namespace TinyCQRS.ReadModel.Interfaces
 {
     public interface IReadModelRepository<T> where T : class, IReadModel, new()
     {
+	    T Find(object id);
+
 	    T Get(object id);
 
 	    IQueryable<T> All(params Expression<Func<T, object>>[] including);

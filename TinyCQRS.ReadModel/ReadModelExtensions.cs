@@ -28,16 +28,12 @@ namespace TinyCQRS.ReadModel
 
 		public static T GetOrCreate<T>(this IReadModelRepository<T> repository, object id) where T : class, IReadModel, new()
 		{
-			return repository.Get(id) ?? new T();
+			return repository.Find(id) ?? new T();
 		}
 
 		public static void Update<T>(this IReadModelRepository<T> repository, object id, Action<T> action) where T : class, IReadModel, new()
 		{
 			var dto = repository.Get(id);
-			if (dto == null)
-			{
-				throw new ApplicationException(string.Format("No model of type {0} with id {1} was found", typeof(T).Name, id));
-			}
 
 			action(dto);
 
@@ -48,17 +44,19 @@ namespace TinyCQRS.ReadModel
 		public static void Create<T>(this IReadModelRepository<T> repository, Action<T> action) where T : class, IReadModel, new()
 		{
 			var dto = repository.Create();
+			
 			action(dto);
 
 			repository.Add(dto);
 			repository.Commit();
 		}
 
-		public static void CreateOrUpdate<T>(this IReadModelRepository<T> repository, object id, Action<T> action) where T : class, IReadModel, new()
+		public static void CreateOrUpdate<T>(this IReadModelRepository<T> repository, object id, Action<T> action = null) where T : class, IReadModel, new()
 		{
 			var model = repository.GetOrCreate(id);
 
-			action(model);
+			if(action != null)
+				action(model);
 
 			if (model.Id == null)
 			{

@@ -19,24 +19,27 @@ namespace TinyCQRS.Client
 	class Program
 	{
 		private static ReadModelContext _readModelContext;
-		private static IEventStore<AggregateRoot> _eventStore;
+		private static IEventStore _eventStore;
 
 		static void SiteCrawlServiceTest()
 		{
+			//var siteId = new Guid("d7af265a-1ffd-456c-9be4-8ae74f3b60a8");
 			var siteId = Guid.NewGuid();
 
-			IWindsorContainer container;
-			//container = Container(new DatabaseServiceInstaller(@"Data Source=.\SQLExpress;Integrated Security=true;Database=TinyCQRS.Events"));
-			container = Container(new MemoryServiceInstaller());
-			_eventStore = container.Resolve<IEventStore<AggregateRoot>>();
-			
+			var container = Container(new DatabaseServiceInstaller(
+				@"Data Source=.\SQLExpress;Integrated Security=true;Database=TinyCQRS.Events",
+				@"Data Source=.\SQLExpress;Integrated Security=true;Database=TinyCQRS.ReadModelDenormalized",
+				@"mongodb://localhost"));
+			container.Register(Component.For<ILogger>().ImplementedBy<ConsoleLogger>().IsDefault());
+
+			_eventStore = container.Resolve<IEventStore>();
+
 			var crawlService = container.Resolve<ISiteCrawlService>();
 			var siteService = container.Resolve<ISiteService>();
 			var setupService = container.Resolve<ISetupService>();
 			
 			setupService.CreateNewSite(new CreateNewSite(siteId, "Testsite", "http://weeee.dk"));
-
-			var crawler = new Crawler(crawlService, new NullLogger());
+			siteService.OrderFullCrawl(new OrderCrawl(Guid.NewGuid(), siteId, DateTime.UtcNow));
 
 			//crawler.Crawl(siteId);
 

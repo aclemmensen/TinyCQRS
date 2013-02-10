@@ -42,19 +42,28 @@ namespace TinyCQRS.ReadModel.Infrastructure
 		    return new T();
 	    }
 
-	    public T Get(object id)
-        {
-            T dto;
-            if (_data.TryGetValue(id, out dto))
-            {
-                return dto;
-            }
+		public T Find(object id)
+		{
+			T dto;
+			if (_data.TryGetValue(id, out dto))
+			{
+				return dto;
+			}
 
-            throw new ApplicationException(string.Format(
-                "No DTO of type {0} with id {1} exists", 
-                typeof(T).Name, 
-                id.ToString()));
-        }
+			return null;
+		}
+
+	    public T Get(object id)
+	    {
+		    var result = Find(id);
+
+			if (result == null)
+			{
+				throw new ApplicationException(string.Format("No DTO of type {0} with id {1} exists", typeof(T).Name, id));
+			}
+
+		    return result;
+	    }
 
 		public IQueryable<T> All(params Expression<Func<T, object>>[] including)
         {

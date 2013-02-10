@@ -29,6 +29,11 @@ namespace TinyCQRS.ReadModel.Infrastructure
 			Connection.CreateTableIfNotExists<T>();
 		}
 
+		public T Find(object id)
+		{
+			throw new NotImplementedException();
+		}
+
 		public T Get(object id)
 		{
 			return Connection.Id<T>(id);

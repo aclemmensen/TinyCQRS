@@ -8,18 +8,16 @@ using TinyCQRS.Domain.Interfaces;
 
 namespace TinyCQRS.Infrastructure.Persistence
 {
-	public class SqlEventStore<T> : IEventStore<T> where T : EventSourced
+	public class SqlEventStore : IEventStore
 	{
 		private readonly string _connstr;
 
 		public int Processed { get { return _processed; } }
 		private int _processed;
-		private string _location;
 
 		public SqlEventStore(string connstr)
 		{
 			_connstr = connstr;
-			_location = typeof (AggregateRoot).IsAssignableFrom(typeof(T)) ? "Aggregates" : "Sagas";
 		}
 
 		public IEnumerable<Event> GetEventsFor(Guid id)
@@ -32,7 +30,7 @@ namespace TinyCQRS.Infrastructure.Persistence
 			return GetEventCollectionFor(id).LastOrDefault();
 		}
 
-		public void StoreEvent(Event @event)
+		public void StoreEvent<TAggregate>(Event @event) where TAggregate : IEventSourced
 		{
 			_processed++;
 
@@ -44,7 +42,7 @@ namespace TinyCQRS.Infrastructure.Persistence
 			}
 
 			var affected = Execute(
-				string.Format("INSERT INTO {0} (AggregateId, MessageId, CorrelationId, Version, Created, Data, Type) VALUES(@id, @mid, @cid, @v, @c, @d, @t)", _location),
+				string.Format("INSERT INTO Events (AggregateId, MessageId, CorrelationId, Version, Created, Data, Type) VALUES(@id, @mid, @cid, @v, @c, @d, @t)"),
 				new Dictionary<string, object>
 				{
 					{"id", envelope.AggregateId},
@@ -63,11 +61,11 @@ namespace TinyCQRS.Infrastructure.Persistence
 
 		}
 
-		private IList<Event> GetEventCollectionFor(Guid id)
+		private IEnumerable<Event> GetEventCollectionFor(Guid id)
 		{
 			return 
 				Query(
-					string.Format("SELECT * FROM {0} WHERE AggregateId = @id ORDER BY Version ASC", _location),
+					string.Format("SELECT * FROM Events WHERE AggregateId = @id ORDER BY Version ASC"),
 					EventFactory,
 					new Dictionary<string, object> { { "id", id } })
 					.Select(x => x.Event)
@@ -111,12 +109,9 @@ namespace TinyCQRS.Infrastructure.Persistence
 			using (var cmd = CreateCommand(conn, statement, parameters))
 			using (var reader = cmd.ExecuteReader())
 			{
-				var count = 0;
-
 				while (reader.Read())
 				{
 					var row = new Dictionary<string, object>();
-					count++;
 
 					for (var i = 0; i < reader.FieldCount; i++)
 					{
@@ -125,8 +120,6 @@ namespace TinyCQRS.Infrastructure.Persistence
 
 					yield return factory(row);
 				}
-
-				Console.WriteLine("Fetched {0} rows", count);
 			}
 		}
 

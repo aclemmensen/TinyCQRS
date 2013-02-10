@@ -14,24 +14,43 @@ namespace TinyCQRS.Application.Crosscutting
 			_container = container;
 		}
 
-		public object Resolve(Type type)
+		public IRelease<object> Resolve(Type type)
 		{
-			return _container.Resolve(type);
+			return new WindsorRelease<object>(_container, _container.Resolve(type));
 		}
 
-		public T Resolve<T>()
+		public IRelease<T> Resolve<T>()
 		{
-			return _container.Resolve<T>();
+			return new WindsorRelease<T>(_container, _container.Resolve<T>());
 		}
 
-		public object[] ResolveAll(Type type)
+		public IRelease<object[]> ResolveAll(Type type)
 		{
-			return (object[])_container.ResolveAll(type);
+			return new WindsorRelease<object[]>(_container, (object[]) _container.ResolveAll(type));
 		}
 
-		public IEnumerable<T> ResolveAll<T>()
+		public IRelease<IEnumerable<T>> ResolveAll<T>()
 		{
-			return _container.ResolveAll<T>();
+			var instances = _container.ResolveAll<T>();
+			return new WindsorRelease<IEnumerable<T>>(_container, instances);
 		}
+	}
+
+	public class WindsorRelease<T> : IRelease<T>
+	{
+		private readonly IWindsorContainer _container;
+
+		public WindsorRelease(IWindsorContainer container, T instance)
+		{
+			_container = container;
+			Instance = instance;
+		}
+
+		public void Dispose()
+		{
+			_container.Release(Instance);
+		}
+
+		public T Instance { get; private set; }
 	}
 }

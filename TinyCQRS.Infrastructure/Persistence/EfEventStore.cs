@@ -9,7 +9,7 @@ using TinyCQRS.Infrastructure.Database;
 
 namespace TinyCQRS.Infrastructure.Persistence
 {
-	public class EfEventStore<T> : IEventStore<T> where T : IEventSourced
+	public class EfEventStore : IEventStore
 	{
 		private readonly EventContext _context;
 		private readonly DbSet<MessageEnvelope> _set;
@@ -49,7 +49,7 @@ namespace TinyCQRS.Infrastructure.Persistence
 			return GetEventsFor(id).LastOrDefault();
 		}
 
-		public void StoreEvent(Event @event)
+		public void StoreEvent<TAggregate>(Event @event) where TAggregate : IEventSourced
 		{
 			Processed++;
 

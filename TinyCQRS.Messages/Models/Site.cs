@@ -56,7 +56,32 @@ namespace TinyCQRS.Contracts.Models
 		{
 			PriorityPages = new Collection<PageIdentity>();
 			History = new Collection<CrawlStatusItem>();
+
+			BrokenLinksCount = new ErrorCount();
+			MisspellingsCount = new ErrorCount();
 		}
+	}
+
+	public class SiteInventory : Entity
+	{
+		public ICollection<SiteInventoryPageInfo> Pages { get; set; }
+
+		public SiteInventory()
+		{
+			Pages = new Collection<SiteInventoryPageInfo>();
+		}
+	}
+
+	public class SiteInventoryPageInfo : ValueObject
+	{
+		public Guid PageId { get; set; }
+		public string Title { get; set; }
+		public string Url { get; set; }
+		public int ReferringPages { get; set; }
+		public int Size { get; set; }
+		public DateTime FirstSeen { get; set; }
+		public int PageScore { get; set; }
+		public int PageLevel { get; set; }
 	}
 
 	public class CrawlStatusItem : ValueObject

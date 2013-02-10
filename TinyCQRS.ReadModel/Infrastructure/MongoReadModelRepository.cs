@@ -19,14 +19,15 @@ namespace TinyCQRS.ReadModel.Infrastructure
 			var client = new MongoClient(connstr);
 			var server = client.GetServer();
 			var db = server.GetDatabase("local");
+			//db.SetProfilingLevel(ProfilingLevel.All);
 			
 			_collection = db.GetCollection<T>(typeof(T).Name);
 		}
 
-		public T Get(object id)
+		public T Find(object id)
 		{
 			IMongoQuery q;
-			
+
 			if (id is Guid)
 			{
 				q = Query.EQ(KeyName(), new BsonBinaryData((Guid)id));
@@ -35,8 +36,20 @@ namespace TinyCQRS.ReadModel.Infrastructure
 			{
 				q = Query.EQ(KeyName(), id.ToString());
 			}
-			
+
 			return _collection.FindOne(q);
+		}
+
+		public T Get(object id)
+		{
+			var result = Find(id);
+			
+			if (result == null)
+			{
+				throw new ApplicationException(string.Format("Found no {0} with id {1}", typeof(T).Name, id));
+			}
+
+			return result;
 		}
 
 		public IQueryable<T> All(params Expression<Func<T, object>>[] including)

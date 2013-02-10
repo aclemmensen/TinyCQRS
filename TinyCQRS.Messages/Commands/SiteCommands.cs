@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace TinyCQRS.Contracts.Commands
 {
@@ -47,10 +48,12 @@ namespace TinyCQRS.Contracts.Commands
 	public class MarkCrawlComplete : Command
 	{
 		public DateTime TimeOfCompletion { get; set; }
+		public IEnumerable<Guid> MissingPages { get; set; }
 
-		public MarkCrawlComplete(Guid crawlId, DateTime timeOfCompletion) : base(crawlId)
+		public MarkCrawlComplete(Guid crawlId, DateTime timeOfCompletion, IEnumerable<Guid> missingPages) : base(crawlId)
 		{
 			TimeOfCompletion = timeOfCompletion;
+			MissingPages = missingPages;
 		}
 	}
 }

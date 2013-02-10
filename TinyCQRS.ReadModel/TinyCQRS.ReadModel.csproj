@@ -67,6 +67,8 @@
   <ItemGroup>
     <Compile Include="Generators\CrawlReadModelGenerator.cs" />
     <Compile Include="Generators\PageReadModelGenerator.cs" />
+    <Compile Include="Generators\SiteIdentityReadModelGenerator.cs" />
+    <Compile Include="Generators\SiteOverviewReadModelGenerator.cs" />
     <Compile Include="Generators\SiteReadModelGenerator.cs" />
     <Compile Include="Infrastructure\CachingReadModelRepository.cs" />
     <Compile Include="Infrastructure\EfReadModelRepository.cs" />

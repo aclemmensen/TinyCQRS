@@ -42,15 +42,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AggregateRoot.cs" />
-    <Compile Include="Models\QualityAssurance\CrawlAggregate.cs" />
-    <Compile Include="Models\QualityAssurance\CrawlOrderCommandHandler.cs" />
+    <Compile Include="Models\QualityAssurance\CrawlSaga.cs" />
     <Compile Include="Models\QualityAssurance\SiteAggregate.cs" />
-    <Compile Include="Models\QualityAssurance\CrawlJobCommandHandler.cs" />
+    <Compile Include="Models\QualityAssurance\CrawlCoordinator.cs" />
     <Compile Include="Models\QualityAssurance\SiteCommandHandler.cs" />
     <Compile Include="Interfaces\IApply.cs" />
     <Compile Include="Interfaces\IEventStore.cs" />
     <Compile Include="Interfaces\IHandle.cs" />
     <Compile Include="Interfaces\IRepository.cs" />
+    <Compile Include="Models\QualityAssurance\SpellcheckHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ValueObject.cs" />
   </ItemGroup>
