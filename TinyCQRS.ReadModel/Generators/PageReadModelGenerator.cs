@@ -19,7 +19,7 @@ namespace TinyCQRS.ReadModel.Generators
 		public void Process(PageContentChanged @event)
 		{
 			var page = _pages.Get(@event.AggregateId);
-			page.Content = @event.Content;
+			//page.Content = @event.Content;
 			_pages.Update(page);
 			_pages.Commit();
 		}

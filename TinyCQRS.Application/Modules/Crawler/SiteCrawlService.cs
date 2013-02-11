@@ -36,7 +36,7 @@ namespace TinyCQRS.Application.Modules.Crawler
 			Handle(command);
 		}
 
-		public void PageCheckedWithoutChanges(RegisterNoChangeCheck command)
+		public void PageCheckedWithoutChanges(RegisterCheckWithoutChange command)
 		{
 			Handle(command);
 		}

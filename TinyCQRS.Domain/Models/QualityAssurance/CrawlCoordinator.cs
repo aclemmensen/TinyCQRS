@@ -3,23 +3,16 @@ using System.Collections.Generic;
 using TinyCQRS.Contracts;
 using TinyCQRS.Contracts.Commands;
 using TinyCQRS.Contracts.Events;
+using TinyCQRS.Contracts.Services;
 using TinyCQRS.Domain.Interfaces;
 
 namespace TinyCQRS.Domain.Models.QualityAssurance
 {
-	public class RandomCheese : IConsume<CrawlCompleted>
-	{
-		public void Process(CrawlCompleted @event)
-		{
-			
-		}
-	}
-
 	public class CrawlCoordinator :
 		IHandle<OrderCrawl>,
 		IHandle<OrderPageCheck>,
 		IHandle<StartCrawl>,
-		IHandle<RegisterNoChangeCheck>,
+		IHandle<RegisterCheckWithoutChange>,
 		IHandle<RegisterNewPage>,
 		IHandle<RegisterPageContentChange>,
 		IHandle<MarkCrawlComplete>,
@@ -28,11 +21,13 @@ namespace TinyCQRS.Domain.Models.QualityAssurance
 	{
 		private readonly ISagaRepository<CrawlSaga> _crawls;
 		private readonly IRepository<SiteAggregate> _sites;
+		private readonly IBlobService _blobs;
 
-		public CrawlCoordinator(ISagaRepository<CrawlSaga> crawls, IRepository<SiteAggregate> sites)
+		public CrawlCoordinator(ISagaRepository<CrawlSaga> crawls, IRepository<SiteAggregate> sites, IBlobService blobs)
 		{
 			_crawls = crawls;
 			_sites = sites;
+			_blobs = blobs;
 		}
 
 		public void Handle(OrderCrawl command)
@@ -53,7 +48,7 @@ namespace TinyCQRS.Domain.Models.QualityAssurance
 			_crawls.Save(crawl);
 		}
 
-		public void Handle(RegisterNoChangeCheck command)
+		public void Handle(RegisterCheckWithoutChange command)
 		{
 			var crawl = _crawls.GetById(command.AggregateId);
 			crawl.PageCheckedWithoutChange(command.PageId, command.TimeOfCheck);
@@ -63,14 +58,16 @@ namespace TinyCQRS.Domain.Models.QualityAssurance
 		public void Handle(RegisterNewPage command)
 		{
 			var crawl = _crawls.GetById(command.AggregateId);
-			crawl.AddNewPage(command.PageId, command.Url, command.Content, command.TimeOfCreation);
+			
+			
+			crawl.AddNewPage(command.PageId, command.Url, command.Content, command.TimeOfCreation, _blobs);
 			_crawls.Save(crawl);
 		}
 
 		public void Handle(RegisterPageContentChange command)
 		{
 			var crawl = _crawls.GetById(command.AggregateId);
-			crawl.UpdatePageContent(command.PageId, command.NewContent, command.TimeOfChange);
+			crawl.UpdatePageContent(command.PageId, command.NewContent, command.TimeOfChange, _blobs);
 			_crawls.Save(crawl);
 		}
 

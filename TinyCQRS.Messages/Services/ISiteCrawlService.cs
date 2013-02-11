@@ -18,7 +18,7 @@ namespace TinyCQRS.Contracts.Services
 
 		void UpdatePageContent(RegisterPageContentChange command);
 
-		void PageCheckedWithoutChanges(RegisterNoChangeCheck command);
+		void PageCheckedWithoutChanges(RegisterCheckWithoutChange command);
 
 		void MarkCrawlComplete(MarkCrawlComplete command);
 

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using Stateless;
+using TinyCQRS.Contracts;
 using TinyCQRS.Contracts.Commands;
 using TinyCQRS.Contracts.Events;
+using TinyCQRS.Contracts.Services;
 using TinyCQRS.Domain.Interfaces;
 
 namespace TinyCQRS.Domain.Models.QualityAssurance
@@ -60,12 +62,15 @@ namespace TinyCQRS.Domain.Models.QualityAssurance
 			ApplyChange(new CrawlStarted(_id, crawlerName, startTime));
 		}
 
-		public void AddNewPage(Guid pageId, string url, string content, DateTime timeOfCreation)
+		public void AddNewPage(Guid pageId, string url, string content, DateTime timeOfCreation, IBlobService blobs)
 		{
 			Guard(State.InProgress, "Cannot add pages to a crawl that isn't running");
 			Guard(pageId, string.Format("Cannot add page id {0} as new; it has already been seen", pageId));
 
-			ApplyChange(new PageCreated(_id, _siteId, pageId, url, content, timeOfCreation));
+			var reference = new BlobReference<string>(_id, pageId, content);
+			blobs.Save(reference);
+
+			ApplyChange(new PageCreated(_id, _siteId, pageId, url, reference, timeOfCreation));
 		}
 
 		public void PageCheckedWithoutChange(Guid pageId, DateTime timeOfCheck)
@@ -75,41 +80,20 @@ namespace TinyCQRS.Domain.Models.QualityAssurance
 			ApplyChange(new PageChecked(_id, pageId, timeOfCheck));
 		}
 
-		public void UpdatePageContent(Guid pageId, string newContent, DateTime timeOfChange)
+		public void UpdatePageContent(Guid pageId, string newContent, DateTime timeOfChange, IBlobService blobs)
 		{
 			Guard(State.InProgress, "Cannot update page content for a crawl that isn't running");
-			
-			ApplyChange(new PageContentChanged(_id, pageId, newContent, timeOfChange));
+
+			var reference = new BlobReference<string>(_id, pageId, newContent);
+			blobs.Save(reference);
+
+			ApplyChange(new PageContentChanged(_id, pageId, reference, timeOfChange));
 		}
 
 		public void MarkCompleted(DateTime timeOfCompletion, IEnumerable<Guid> missingPages)
 		{
 			Guard(Trigger.CrawlMarkedComplete, "Cannot complete a crawl that isn't running.");
 			ApplyChange(new CrawlCompleted(_id, _siteId, timeOfCompletion, _status.TotalCount, _status.NewPages, _status.ChangedPages, _status.UnchangedPages, missingPages));
-		}
-
-		private void Guard(Trigger trigger, string message)
-		{
-			if (!_state.CanFire(trigger))
-			{
-				throw new InvalidOperationException(string.Format("Error transitioning {0} -> {1}: {2}", _state.State, trigger, message));
-			}
-		}
-
-		private void Guard(State state, string message)
-		{
-			if (!_state.IsInState(state))
-			{
-				throw new InvalidOperationException(string.Format("In state {0}, expected {1}: {2}", _state.State, state, message));
-			}
-		}
-
-		private void Guard(Guid pageId, string message)
-		{
-			if (_pages.Contains(pageId))
-			{
-				throw new InvalidOperationException(message);
-			}
 		}
 
 		public void Apply(CrawlOrdered @event)
@@ -150,6 +134,31 @@ namespace TinyCQRS.Domain.Models.QualityAssurance
 		public void Apply(CrawlCompleted @event)
 		{
 			_completionTime = @event.TimeOfCompletion;
+		}
+
+
+		private void Guard(Trigger trigger, string message)
+		{
+			if (!_state.CanFire(trigger))
+			{
+				throw new InvalidOperationException(string.Format("Error transitioning {0} -> {1}: {2}", _state.State, trigger, message));
+			}
+		}
+
+		private void Guard(State state, string message)
+		{
+			if (!_state.IsInState(state))
+			{
+				throw new InvalidOperationException(string.Format("In state {0}, expected {1}: {2}", _state.State, state, message));
+			}
+		}
+
+		private void Guard(Guid pageId, string message)
+		{
+			if (_pages.Contains(pageId))
+			{
+				throw new InvalidOperationException(message);
+			}
 		}
 
 		private class CrawlStatus

@@ -14,12 +14,12 @@ namespace TinyCQRS.Contracts.Commands
 		}
 	}
 
-	public class RegisterNoChangeCheck : Command
+	public class RegisterCheckWithoutChange : Command
 	{
 		public Guid PageId { get; set; }
 		public DateTime TimeOfCheck { get; set; }
 
-		public RegisterNoChangeCheck(Guid crawlId, Guid pageId, DateTime timeOfCheck)
+		public RegisterCheckWithoutChange(Guid crawlId, Guid pageId, DateTime timeOfCheck)
 			: base(crawlId)
 		{
 			PageId = pageId;

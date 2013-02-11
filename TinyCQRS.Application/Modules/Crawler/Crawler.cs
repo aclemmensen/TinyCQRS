@@ -11,7 +11,7 @@ using TinyCQRS.Infrastructure;
 
 namespace TinyCQRS.Application.Modules.Crawler
 {
-	public class Crawler : IConsume<CrawlOrdered>
+	public class Crawler //: IConsume<CrawlOrdered>
 	{
 		private readonly ISiteCrawlService _service;
 		private readonly ILogger _logger;
@@ -63,7 +63,7 @@ namespace TinyCQRS.Application.Modules.Crawler
 				else
 				{
 					//_logger.Log("No change: {0}", url);
-					_service.PageCheckedWithoutChanges(new RegisterNoChangeCheck(_crawlId, page.PageId, DateTime.UtcNow));
+					_service.PageCheckedWithoutChanges(new RegisterCheckWithoutChange(_crawlId, page.PageId, DateTime.UtcNow));
 				}
 			}
 			else
@@ -73,7 +73,13 @@ namespace TinyCQRS.Application.Modules.Crawler
 			}
 
 			_seenUrls.Add(url);
+		}
 
+		public void Done()
+		{
+			var missing = _urlMap.Where(x => !_seenUrls.Contains(x.Key)).Select(x => x.Value.PageId).ToList();
+
+			_service.MarkCrawlComplete(new MarkCrawlComplete(_crawlId, DateTime.UtcNow, missing));
 		}
 
 		public void Process(CrawlOrdered @event)
@@ -92,9 +98,7 @@ namespace TinyCQRS.Application.Modules.Crawler
 
 			Handle(string.Format("http://newurl.dk/{0}_new.html", lucky), "this is a random new page");
 
-			var missing = _urlMap.Where(x => !_seenUrls.Contains(x.Key)).Select(x => x.Value.PageId);
-
-			_service.MarkCrawlComplete(new MarkCrawlComplete(_crawlId, DateTime.UtcNow, missing));
+			
 		}
 	}
 }

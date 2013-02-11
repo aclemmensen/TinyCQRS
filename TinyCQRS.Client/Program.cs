@@ -3,19 +3,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
-using TinyCQRS.Application;
 using TinyCQRS.Application.Crosscutting;
 using TinyCQRS.Application.Modules.Crawler;
-using TinyCQRS.Contracts;
 using TinyCQRS.Contracts.Commands;
 using TinyCQRS.Contracts.Services;
-using TinyCQRS.Domain;
 using TinyCQRS.Domain.Interfaces;
 using TinyCQRS.Infrastructure;
 using TinyCQRS.ReadModel.Infrastructure;
 
 namespace TinyCQRS.Client
 {
+	
+
 	class Program
 	{
 		private static ReadModelContext _readModelContext;

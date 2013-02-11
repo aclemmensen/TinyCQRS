@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinyCQRS.WebClient", "TinyC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinyCQRS.Application", "TinyCQRS.Application\TinyCQRS.Application.csproj", "{FEA8C11A-29B5-4E39-ADAF-0B5135A99D9D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinyCQRS.IntegrationClient", "TinyCQRS.IntegrationClient\TinyCQRS.IntegrationClient.csproj", "{6F47170C-3FB5-4AC6-85A6-C11F13DBB7C3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +51,10 @@ Global
 		{FEA8C11A-29B5-4E39-ADAF-0B5135A99D9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FEA8C11A-29B5-4E39-ADAF-0B5135A99D9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FEA8C11A-29B5-4E39-ADAF-0B5135A99D9D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F47170C-3FB5-4AC6-85A6-C11F13DBB7C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F47170C-3FB5-4AC6-85A6-C11F13DBB7C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F47170C-3FB5-4AC6-85A6-C11F13DBB7C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F47170C-3FB5-4AC6-85A6-C11F13DBB7C3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

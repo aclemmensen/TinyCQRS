@@ -20,16 +20,16 @@ namespace TinyCQRS.Contracts.Events
 		public Guid SiteId { get; set; }
 		public Guid PageId { get; set; }
 		public string Url { get; private set; }
-		public string Content { get; private set; }
+		public BlobReference BlobReference { get; set; }
 		public DateTime TimeOfCreation { get; set; }
 
-		public PageCreated(Guid crawlId, Guid siteId, Guid pageId, string url, string content, DateTime timeOfCreation)
+		public PageCreated(Guid crawlId, Guid siteId, Guid pageId, string url, BlobReference blobReference, DateTime timeOfCreation)
 			: base(crawlId)
 		{
 			SiteId = siteId;
 			PageId = pageId;
 			Url = url;
-			Content = content;
+			BlobReference = blobReference;
 			TimeOfCreation = timeOfCreation;
 		}
 	}
@@ -37,15 +37,15 @@ namespace TinyCQRS.Contracts.Events
 	public class PageContentChanged : Event
 	{
 		public Guid PageId { get; set; }
-		public string Content { get; private set; }
+		public BlobReference BlobReference { get; set; }
 
 		public DateTime TimeOfChange { get; set; }
 
-		public PageContentChanged(Guid siteId, Guid pageId, string content, DateTime timeOfChange)
+		public PageContentChanged(Guid siteId, Guid pageId, BlobReference blobReference, DateTime timeOfChange)
 			: base(siteId)
 		{
 			PageId = pageId;
-			Content = content;
+			BlobReference = blobReference;
 			TimeOfChange = timeOfChange;
 		}
 	}
