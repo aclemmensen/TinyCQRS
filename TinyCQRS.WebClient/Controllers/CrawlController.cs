@@ -9,9 +9,9 @@ namespace TinyCQRS.WebClient.Controllers
 	public class CrawlController : Controller
 	{
 		private readonly ISiteService _sites;
-		private readonly ISiteCrawlService _crawls;
+		private readonly ICrawlService _crawls;
 
-		public CrawlController(ISiteService sites, ISiteCrawlService crawls)
+		public CrawlController(ISiteService sites, ICrawlService crawls)
 		{
 			_sites = sites;
 			_crawls = crawls;

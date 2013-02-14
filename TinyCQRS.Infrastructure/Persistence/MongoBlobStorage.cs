@@ -1,11 +1,43 @@
 ﻿using System;
+using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using TinyCQRS.Contracts;
+using TinyCQRS.Domain.Interfaces;
 
 namespace TinyCQRS.Infrastructure.Persistence
 {
+	public class MemoryBlobStorage : IBlobStorage
+	{
+		private readonly Dictionary<Guid,Dictionary<Guid,object>> _data = new Dictionary<Guid, Dictionary<Guid, object>>();
+		
+		public T Get<T>(BlobReference reference)
+		{
+			return (T) _data[reference.AggregateId][reference.ItemId];
+		}
+
+		public T Find<T>(BlobReference reference)
+		{
+			return Get<T>(reference);
+		}
+
+		public void Save<T>(BlobReference reference, T payload)
+		{
+			if (!_data.ContainsKey(reference.AggregateId))
+			{
+				_data[reference.AggregateId] = new Dictionary<Guid, object>();
+			}
+
+			_data[reference.AggregateId][reference.ItemId] = payload;
+		}
+
+		public void Remove(BlobReference reference)
+		{
+			throw new NotImplementedException();
+		}
+	}
+
 	public class MongoBlobStorage : IBlobStorage
 	{
 		private readonly MongoDatabase _db;
@@ -19,36 +51,36 @@ namespace TinyCQRS.Infrastructure.Persistence
 			_data = _db.GetCollection<Blob>("Blobs");
 		}
 
-		public T Get<T>(BlobReference<T> reference)
+		public T Get<T>(BlobReference reference)
 		{
-			var result = _data.FindOneById(Blob.CreateId(reference));
+			var result = _data.FindOneById(reference.ToString());
 
 			if (result == null)
 			{
-				throw new ApplicationException("No blob found for reference " + reference);
+				throw new ApplicationException("No blob found for reference " + reference.ToString());
 			}
 
 			return (T)result.Payload;
 		}
 
-		public T Find<T>(BlobReference<T> reference)
+		public T Find<T>(BlobReference reference)
 		{
-			var result = _data.FindOneById(Blob.CreateId(reference));
+			var result = _data.FindOneById(reference.ToString());
 
 			if (result == null)
 				return default(T);
 
-			return (T) result.Payload;
+			return (T)result.Payload;
 		}
 
-		public void Save<T>(BlobReference<T> reference)
+		public void Save<T>(BlobReference reference, T payload)
 		{
-			_data.Save(new Blob(reference, reference.Payload));
+			_data.Save(Blob.Create<T>(reference, payload));
 		}
 
 		public void Remove(BlobReference reference)
 		{
-			_data.Remove(Query.EQ("_id", Blob.CreateId(reference)));
+			_data.Remove(Query.EQ("_id", reference.ToString()));
 		}
 
 		private class Blob
@@ -62,15 +94,13 @@ namespace TinyCQRS.Infrastructure.Persistence
 				Created = DateTime.UtcNow;
 			}
 
-			public Blob(BlobReference reference, object payload) : this()
+			public static Blob Create<T>(BlobReference reference, object payload = null)
 			{
-				Id = CreateId(reference);
-				Payload = payload;
-			}
-
-			public static string CreateId(BlobReference reference)
-			{
-				return "blob_" + reference;
+				return new Blob
+				{
+					Id = reference.ToString(),
+					Payload = payload
+				};
 			}
 		}
 	}

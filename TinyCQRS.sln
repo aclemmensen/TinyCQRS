@@ -7,15 +7,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinyCQRS.Contracts", "TinyC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinyCQRS.Infrastructure", "TinyCQRS.Infrastructure\TinyCQRS.Infrastructure.csproj", "{FEDCEEF9-B80C-413F-A2A9-C13CFFEB53A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinyCQRS.Client", "TinyCQRS.Client\TinyCQRS.Client.csproj", "{F3C162E9-3CB5-4AEA-B10D-B518C153167D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinyCQRS.Client.Console", "TinyCQRS.Client\TinyCQRS.Client.Console.csproj", "{F3C162E9-3CB5-4AEA-B10D-B518C153167D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinyCQRS.ReadModel", "TinyCQRS.ReadModel\TinyCQRS.ReadModel.csproj", "{55CBEF31-2765-4935-90FC-29A4078AFE96}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinyCQRS.WebClient", "TinyCQRS.WebClient\TinyCQRS.WebClient.csproj", "{B07A3FB6-3B40-412F-A2D3-B9F5D29E52BD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinyCQRS.Client.Web", "TinyCQRS.WebClient\TinyCQRS.Client.Web.csproj", "{B07A3FB6-3B40-412F-A2D3-B9F5D29E52BD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinyCQRS.Application", "TinyCQRS.Application\TinyCQRS.Application.csproj", "{FEA8C11A-29B5-4E39-ADAF-0B5135A99D9D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinyCQRS.IntegrationClient", "TinyCQRS.IntegrationClient\TinyCQRS.IntegrationClient.csproj", "{6F47170C-3FB5-4AC6-85A6-C11F13DBB7C3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinyCQRS.Client.Integration", "TinyCQRS.IntegrationClient\TinyCQRS.Client.Integration.csproj", "{6F47170C-3FB5-4AC6-85A6-C11F13DBB7C3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

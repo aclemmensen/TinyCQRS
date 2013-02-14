@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using ReflectionMagic;
 using TinyCQRS.Contracts;
+using TinyCQRS.Domain.Interfaces;
 
 namespace TinyCQRS.Domain
 {
@@ -30,6 +33,9 @@ namespace TinyCQRS.Domain
 		private readonly List<Event> _pendingEvents = new List<Event>();
 		public IEnumerable<Event> PendingEvents { get { return _pendingEvents; } }
 
+		private static readonly Dictionary<Type,Dictionary<Type,MethodInfo>> _methodCache 
+			= new Dictionary<Type, Dictionary<Type, MethodInfo>>();
+
 		public Guid Id { get { return _id; } }
 		public int Version { get; set; }
 
@@ -43,17 +49,50 @@ namespace TinyCQRS.Domain
 			foreach (var e in history) ApplyChange(e, false);
 		}
 
-		protected void ApplyChange(Event message)
+		protected void ApplyChange<T>(T message) where T : Event
 		{
 			ApplyChange(message, true);
 		}
 
-		protected void ApplyChange(Event message, bool isNew)
+		protected void ApplyChange<T>(T message, bool isNew) where T : Event
 		{
-			this.AsDynamic().Apply(message);
+			//this.AsDynamic().Apply(message);
+
+			var applier = this as IApply<T>;
+			if (applier != null)
+			{
+				//throw new ApplicationException("This entity does not implement IApply<" + typeof(T).Name + ">");
+				applier.Apply(message);
+			}
+			else
+			{
+				
+				Get(GetType(), message.GetType()).Invoke(this, new object[] {message});
+
+				//this.AsDynamic().Apply(message);
+			}
 
 			if (isNew) _pendingEvents.Add(message);
 			else Version = message.Version;
+		}
+
+		private static MethodInfo Get(Type aggregateType, Type messageType)
+		{
+			if (!_methodCache.ContainsKey(aggregateType))
+			{
+				_methodCache[aggregateType] = aggregateType
+					.GetMethods(BindingFlags.Instance | BindingFlags.Public)
+					.Where(x => x.Name == "Apply" && x.ReturnType == typeof(void))
+					.ToDictionary(x => x.GetParameters().Single().ParameterType, x => x);
+			}
+
+			MethodInfo method;
+			if (!_methodCache[aggregateType].TryGetValue(messageType, out method))
+			{
+				throw new MissingMethodException(string.Format("No Apply method on aggregate type {0} for event type {1}", aggregateType.Name, messageType.Name));
+			}
+
+			return method;
 		}
 	}
 

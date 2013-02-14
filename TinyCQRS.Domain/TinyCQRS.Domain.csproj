@@ -20,6 +20,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -42,16 +43,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AggregateRoot.cs" />
-    <Compile Include="Models\QualityAssurance\CrawlSaga.cs" />
-    <Compile Include="Models\QualityAssurance\SiteAggregate.cs" />
+    <Compile Include="HashingHelper.cs" />
+    <Compile Include="Interfaces\IBlobStorage.cs" />
+    <Compile Include="Models\QualityAssurance\Crawl.cs" />
+    <Compile Include="Blobs\PageProfile.cs" />
+    <Compile Include="Models\QualityAssurance\Site.cs" />
     <Compile Include="Models\QualityAssurance\CrawlCoordinator.cs" />
-    <Compile Include="Models\QualityAssurance\SiteCommandHandler.cs" />
+    <Compile Include="Models\QualityAssurance\SiteHandler.cs" />
     <Compile Include="Interfaces\IApply.cs" />
     <Compile Include="Interfaces\IEventStore.cs" />
     <Compile Include="Interfaces\IHandle.cs" />
     <Compile Include="Interfaces\IRepository.cs" />
-    <Compile Include="Models\QualityAssurance\SpellcheckHandler.cs" />
+    <Compile Include="Models\Account.cs" />
+    <Compile Include="Models\QualityAssurance\TextProcessingService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\SpellcheckService.cs" />
     <Compile Include="ValueObject.cs" />
   </ItemGroup>
   <ItemGroup>

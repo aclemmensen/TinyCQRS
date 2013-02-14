@@ -84,7 +84,6 @@
     <Compile Include="CommandDispatcher.cs" />
     <Compile Include="ConcurrencyException.cs" />
     <Compile Include="Database\EventContext.cs" />
-    <Compile Include="IBlobStorage.cs" />
     <Compile Include="ICommandDispatcher.cs" />
     <Compile Include="ILogger.cs" />
     <Compile Include="IMessageBus.cs" />
@@ -113,11 +112,13 @@
     <Compile Include="Caching\NullCache.cs" />
     <Compile Include="IResolver.cs" />
     <Compile Include="Persistence\MongoBlobStorage.cs" />
+    <Compile Include="Persistence\MongoEventStore.cs" />
     <Compile Include="Persistence\OrmLiteEventStore.cs" />
     <Compile Include="Persistence\SqlEventStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Persistence\InMemoryEventStore.cs" />
     <Compile Include="Persistence\EventedRepository.cs" />
+    <Compile Include="Services\SpellcheckFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TinyCQRS.Domain\TinyCQRS.Domain.csproj">

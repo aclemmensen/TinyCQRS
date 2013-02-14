@@ -72,7 +72,7 @@ namespace TinyCQRS.Contracts.Models
 		}
 	}
 
-	public class SiteInventoryPageInfo : ValueObject
+	public class SiteInventoryPageInfo
 	{
 		public Guid PageId { get; set; }
 		public string Title { get; set; }
@@ -84,14 +84,14 @@ namespace TinyCQRS.Contracts.Models
 		public int PageLevel { get; set; }
 	}
 
-	public class CrawlStatusItem : ValueObject
+	public class CrawlStatusItem
 	{
 		public DateTime Time { get; set; }
 		public int BrokenLinks { get; set; }
 		public int Misspellings { get; set; }
 	}
 
-	public class ErrorCount : ValueObject
+	public class ErrorCount
 	{
 		public int Total { get; set; }
 		public int New { get; set; }

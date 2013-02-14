@@ -11,6 +11,7 @@ namespace TinyCQRS.Infrastructure.Caching
 	{
 		private readonly IEventStore _innerEventStore;
 		private readonly Dictionary<Guid,List<Event>> _data = new Dictionary<Guid, List<Event>>();
+		private readonly Dictionary<Guid,Event> _lastEvent = new Dictionary<Guid, Event>();
 
 		public int Processed { get; private set; }
 
@@ -21,12 +22,13 @@ namespace TinyCQRS.Infrastructure.Caching
 
 		public IEnumerable<Event> GetEventsFor(Guid id)
 		{
-			return Get(id).OrderBy(x => x.Version);
+			return Get(id);
 		}
 
 		public Event GetLastEventFor(Guid id)
 		{
-			return GetEventsFor(id).LastOrDefault();
+			Event e;
+			return !_lastEvent.TryGetValue(id, out e) ? null : e;
 		}
 
 		public void StoreEvent<TAggregate>(Event @event) where TAggregate : IEventSourced
@@ -34,6 +36,7 @@ namespace TinyCQRS.Infrastructure.Caching
 			Processed++;
 
 			_innerEventStore.StoreEvent<TAggregate>(@event);
+			_lastEvent[@event.AggregateId] = @event;
 
 			Add(@event);
 		}

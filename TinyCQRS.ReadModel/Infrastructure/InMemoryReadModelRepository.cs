@@ -18,18 +18,18 @@ namespace TinyCQRS.ReadModel.Infrastructure
 
 	    public void Add(T dto)
         {
-            _data[dto.Id] = dto;
+            _data[dto.Id ?? dto.GlobalId] = dto;
         }
 
 	    public void Update(T dto)
 	    {
-		    _data.Remove(dto.Id);
-		    _data[dto.Id] = dto;
+		    _data.Remove(dto.Id ?? dto.GlobalId);
+		    _data[dto.Id ?? dto.GlobalId] = dto;
 	    }
 
 	    public void Delete(T dto)
 	    {
-		    _data.Remove(dto.Id);
+		    _data.Remove(dto.Id ?? dto.GlobalId);
 	    }
 
 	    public void Commit()

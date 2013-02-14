@@ -15,45 +15,52 @@ namespace TinyCQRS.Contracts.Commands
 		}
 	}
 
-	public class RegisterNewPage : Command
+	public class ValidatePage : Command
 	{
 		public Guid PageId { get; set; }
-		public string Url { get; private set; }
-		public string Content { get; private set; }
-		public DateTime TimeOfCreation { get; set; }
+		public string NewContent { get; set; }
 
-		public RegisterNewPage(Guid crawlId, Guid pageId, string url, string content, DateTime timeOfCreation) : base(crawlId)
-		{
-			PageId = pageId;
-			Url = url;
-			Content = content;
-			TimeOfCreation = timeOfCreation;
-		}
-	}
-
-	public class RegisterPageContentChange : Command
-	{
-		public Guid PageId { get; set; }
-		public string NewContent { get; private set; }
-		public DateTime TimeOfChange { get; set; }
-
-		public RegisterPageContentChange(Guid crawlId, Guid pageId, string newContent, DateTime timeOfChange) : base(crawlId)
+		public ValidatePage(Guid crawlId, Guid pageId, string newContent)
+			: base(crawlId)
 		{
 			PageId = pageId;
 			NewContent = newContent;
-			TimeOfChange = timeOfChange;
 		}
 	}
 
-	public class MarkCrawlComplete : Command
+	public class ProcessPages : Command
 	{
-		public DateTime TimeOfCompletion { get; set; }
-		public IEnumerable<Guid> MissingPages { get; set; }
+		public IEnumerable<Guid> PageIds { get; set; }
 
-		public MarkCrawlComplete(Guid crawlId, DateTime timeOfCompletion, IEnumerable<Guid> missingPages) : base(crawlId)
+		public ProcessPages(Guid siteId, IEnumerable<Guid> pageIds) : base(siteId)
 		{
-			TimeOfCompletion = timeOfCompletion;
-			MissingPages = missingPages;
+			PageIds = pageIds;
+		}
+	}
+
+	public class SpellcheckPages : Command
+	{
+		public IEnumerable<Guid> PageIds { get; set; }
+
+		public SpellcheckPages(Guid siteId, IEnumerable<Guid> pageIds) : base(siteId)
+		{
+			PageIds = pageIds;
+		}
+	}
+
+	public class CreateSpellcheckConfiguration : Command
+	{
+		public string PrimaryLanguageKey { get; set; }
+		public string SecondaryLanguageKey { get; set; }
+		public IEnumerable<string> Including { get; set; }
+		public IEnumerable<string> Excluding { get; set; }
+
+		public CreateSpellcheckConfiguration(Guid siteId, string primaryLanguageKey, string secondaryLanguageKey, IEnumerable<string> including, IEnumerable<string> excluding) : base(siteId)
+		{
+			PrimaryLanguageKey = primaryLanguageKey;
+			SecondaryLanguageKey = secondaryLanguageKey;
+			Including = including;
+			Excluding = excluding;
 		}
 	}
 }

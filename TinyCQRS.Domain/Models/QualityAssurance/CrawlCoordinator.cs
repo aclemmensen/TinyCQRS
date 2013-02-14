@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using TinyCQRS.Contracts;
-using TinyCQRS.Contracts.Commands;
-using TinyCQRS.Contracts.Events;
-using TinyCQRS.Contracts.Services;
+﻿using TinyCQRS.Contracts.Commands;
 using TinyCQRS.Domain.Interfaces;
 
 namespace TinyCQRS.Domain.Models.QualityAssurance
@@ -15,24 +10,20 @@ namespace TinyCQRS.Domain.Models.QualityAssurance
 		IHandle<RegisterCheckWithoutChange>,
 		IHandle<RegisterNewPage>,
 		IHandle<RegisterPageContentChange>,
-		IHandle<MarkCrawlComplete>,
-		IConsume<CrawlCompleted>
-		//IConsume<SpellcheckCompleted>
+		IHandle<MarkCrawlComplete>
 	{
-		private readonly ISagaRepository<CrawlSaga> _crawls;
-		private readonly IRepository<SiteAggregate> _sites;
-		private readonly IBlobService _blobs;
+		private readonly IRepository<Crawl> _crawls;
+		private readonly IBlobStorage _blobs;
 
-		public CrawlCoordinator(ISagaRepository<CrawlSaga> crawls, IRepository<SiteAggregate> sites, IBlobService blobs)
+		public CrawlCoordinator(IRepository<Crawl> crawls, IBlobStorage blobs)
 		{
 			_crawls = crawls;
-			_sites = sites;
 			_blobs = blobs;
 		}
 
 		public void Handle(OrderCrawl command)
 		{
-			var crawl = new CrawlSaga(command.AggregateId, command.SiteId, command.TimeOfOrder);
+			var crawl = new Crawl(command.AggregateId, command.SiteId, command.TimeOfOrder);
 			_crawls.Save(crawl);
 		}
 
@@ -58,8 +49,6 @@ namespace TinyCQRS.Domain.Models.QualityAssurance
 		public void Handle(RegisterNewPage command)
 		{
 			var crawl = _crawls.GetById(command.AggregateId);
-			
-			
 			crawl.AddNewPage(command.PageId, command.Url, command.Content, command.TimeOfCreation, _blobs);
 			_crawls.Save(crawl);
 		}
@@ -78,20 +67,5 @@ namespace TinyCQRS.Domain.Models.QualityAssurance
 			_crawls.Save(crawl);
 		}
 
-		public void Process(CrawlCompleted @event)
-		{
-			var site = _sites.GetById(@event.SiteId);
-
-			site.AddPages(@event.NewPages, @event.TimeOfCompletion);
-			site.UpdatePages(@event.ChangedPages, @event.TimeOfCompletion);
-			site.RemovePages(@event.MissingPages, @event.TimeOfCompletion);
-
-			_sites.Save(site);
-		}
-
-		public void Process(SpellcheckCompleted @event)
-		{
-			throw new System.NotImplementedException();
-		}
 	}
 }

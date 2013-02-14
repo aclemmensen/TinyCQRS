@@ -55,14 +55,12 @@
   <ItemGroup>
     <Compile Include="Crosscutting\Installers.cs" />
     <Compile Include="Crosscutting\WindsorResolverAdapter.cs" />
-    <Compile Include="Modules\Administration\BlobService.cs" />
     <Compile Include="Modules\Administration\ProjectionService.cs" />
     <Compile Include="Modules\Crawler\Crawler.cs" />
     <Compile Include="Modules\Crawler\SetupService.cs" />
     <Compile Include="Modules\Crawler\SiteService.cs" />
-    <Compile Include="Util\HashingHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Modules\Crawler\SiteCrawlService.cs" />
+    <Compile Include="Modules\Crawler\CrawlService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

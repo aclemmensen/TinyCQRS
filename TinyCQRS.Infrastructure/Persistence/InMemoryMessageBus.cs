@@ -60,11 +60,17 @@ namespace TinyCQRS.Infrastructure.Persistence
 				Initialize();
 			}
 
-            foreach (var subscriber in _subscribers.Where(x => x.Key == @event.GetType()).SelectMany(x => x.Value))
-            {
-				_logger.Log("Consumer {0} processing {1}", subscriber.GetType().Name, @event.GetType().Name);
-                subscriber.AsDynamic().Process(@event);
-            }
+	        List<IConsume> subscribers;
+	        if (!_subscribers.TryGetValue(@event.GetType(), out subscribers)) return;
+	        
+			foreach (var subscriber in subscribers)
+	        {
+		        _logger.Log("Consumer {0} processing {1}", subscriber.GetType().Name, @event.GetType().Name);
+
+		        var method = subscriber.GetType().GetMethod("Process", new[] { @event.GetType() });
+		        method.Invoke(subscriber, new[] { @event });
+		        //subscriber.AsDynamic().Process(@event);
+	        }
         }
 
 		public void Dispose()

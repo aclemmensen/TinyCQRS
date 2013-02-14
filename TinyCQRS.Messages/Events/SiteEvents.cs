@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TinyCQRS.Contracts.Models;
 
 namespace TinyCQRS.Contracts.Events
 {
@@ -12,41 +13,6 @@ namespace TinyCQRS.Contracts.Events
 		{
 			Name = name;
 			Root = root;
-		}
-	}
-
-	public class PageCreated : Event
-	{
-		public Guid SiteId { get; set; }
-		public Guid PageId { get; set; }
-		public string Url { get; private set; }
-		public BlobReference BlobReference { get; set; }
-		public DateTime TimeOfCreation { get; set; }
-
-		public PageCreated(Guid crawlId, Guid siteId, Guid pageId, string url, BlobReference blobReference, DateTime timeOfCreation)
-			: base(crawlId)
-		{
-			SiteId = siteId;
-			PageId = pageId;
-			Url = url;
-			BlobReference = blobReference;
-			TimeOfCreation = timeOfCreation;
-		}
-	}
-
-	public class PageContentChanged : Event
-	{
-		public Guid PageId { get; set; }
-		public BlobReference BlobReference { get; set; }
-
-		public DateTime TimeOfChange { get; set; }
-
-		public PageContentChanged(Guid siteId, Guid pageId, BlobReference blobReference, DateTime timeOfChange)
-			: base(siteId)
-		{
-			PageId = pageId;
-			BlobReference = blobReference;
-			TimeOfChange = timeOfChange;
 		}
 	}
 
@@ -83,6 +49,18 @@ namespace TinyCQRS.Contracts.Events
 		{
 			RemovedPages = removedPages;
 			TimeOfRemoval = timeOfRemoval;
+		}
+	}
+
+	public class PageComponentsIdentified : Event
+	{
+		public Guid PageId { get; set; }
+		public PageComponents PageComponents { get; set; }
+
+		public PageComponentsIdentified(Guid siteId, Guid pageId, PageComponents pageComponents) : base(siteId)
+		{
+			PageComponents = pageComponents;
+			PageId = pageId;
 		}
 	}
 }

@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using Stateless;
 using TinyCQRS.Contracts;
-using TinyCQRS.Contracts.Commands;
 using TinyCQRS.Contracts.Events;
-using TinyCQRS.Contracts.Services;
+using TinyCQRS.Domain.Blobs;
 using TinyCQRS.Domain.Interfaces;
 
 namespace TinyCQRS.Domain.Models.QualityAssurance
 {
-	public class CrawlSaga : Saga,
+	public class Crawl : Saga,
 		IApply<CrawlOrdered>,
 		IApply<CrawlStarted>,
 		IApply<PageChecked>,
@@ -22,9 +21,9 @@ namespace TinyCQRS.Domain.Models.QualityAssurance
 		private DateTime? _startTime;
 		private DateTime? _completionTime;
 		private string _crawlerName;
+
 		private readonly StateMachine<State, Trigger> _state;
 		private readonly HashSet<Guid> _pages = new HashSet<Guid>();
-
 		private readonly CrawlStatus _status = new CrawlStatus();
 
 		private enum State
@@ -42,7 +41,7 @@ namespace TinyCQRS.Domain.Models.QualityAssurance
 			CrawlMarkedComplete
 		}
 
-		public CrawlSaga()
+		public Crawl()
 		{
 			_state = new StateMachine<State,Trigger>(State.None);
 
@@ -51,7 +50,7 @@ namespace TinyCQRS.Domain.Models.QualityAssurance
 			_state.Configure(State.InProgress).Permit(Trigger.CrawlMarkedComplete, State.Completed);
 		}
 
-		public CrawlSaga(Guid crawlId, Guid siteId, DateTime timeOfOrder) : this()
+		public Crawl(Guid crawlId, Guid siteId, DateTime timeOfOrder) : this()
 		{
 			ApplyChange(new CrawlOrdered(crawlId, siteId, timeOfOrder));
 		}
@@ -59,42 +58,46 @@ namespace TinyCQRS.Domain.Models.QualityAssurance
 		public void StartCrawl(string crawlerName, DateTime startTime)
 		{
 			Guard(Trigger.CrawlStarted, "This crawl has already been started.");
+
 			ApplyChange(new CrawlStarted(_id, crawlerName, startTime));
 		}
 
-		public void AddNewPage(Guid pageId, string url, string content, DateTime timeOfCreation, IBlobService blobs)
+		public void AddNewPage(Guid pageId, string url, string content, DateTime timeOfCreation, IBlobStorage blobs)
 		{
 			Guard(State.InProgress, "Cannot add pages to a crawl that isn't running");
 			Guard(pageId, string.Format("Cannot add page id {0} as new; it has already been seen", pageId));
 
-			var reference = new BlobReference<string>(_id, pageId, content);
-			blobs.Save(reference);
+			var reference = Blob(pageId, content, url);
+			blobs.Save(reference, reference.Payload);
 
 			ApplyChange(new PageCreated(_id, _siteId, pageId, url, reference, timeOfCreation));
+		}
+
+		public void UpdatePageContent(Guid pageId, string newContent, DateTime timeOfChange, IBlobStorage blobs)
+		{
+			Guard(State.InProgress, "Cannot update page content for a crawl that isn't running");
+
+			var reference = Blob(pageId, newContent);
+			blobs.Save(reference, reference.Payload);
+
+			ApplyChange(new PageContentChanged(_id, pageId, reference, timeOfChange));
 		}
 
 		public void PageCheckedWithoutChange(Guid pageId, DateTime timeOfCheck)
 		{
 			Guard(State.InProgress, "Cannot register page check to a crawl that isn't running");
-			
+
 			ApplyChange(new PageChecked(_id, pageId, timeOfCheck));
-		}
-
-		public void UpdatePageContent(Guid pageId, string newContent, DateTime timeOfChange, IBlobService blobs)
-		{
-			Guard(State.InProgress, "Cannot update page content for a crawl that isn't running");
-
-			var reference = new BlobReference<string>(_id, pageId, newContent);
-			blobs.Save(reference);
-
-			ApplyChange(new PageContentChanged(_id, pageId, reference, timeOfChange));
 		}
 
 		public void MarkCompleted(DateTime timeOfCompletion, IEnumerable<Guid> missingPages)
 		{
 			Guard(Trigger.CrawlMarkedComplete, "Cannot complete a crawl that isn't running.");
+
 			ApplyChange(new CrawlCompleted(_id, _siteId, timeOfCompletion, _status.TotalCount, _status.NewPages, _status.ChangedPages, _status.UnchangedPages, missingPages));
 		}
+
+		// APPLY //
 
 		public void Apply(CrawlOrdered @event)
 		{
@@ -136,6 +139,12 @@ namespace TinyCQRS.Domain.Models.QualityAssurance
 			_completionTime = @event.TimeOfCompletion;
 		}
 
+		// INTENRAL //
+
+		private BlobReference<PageProfile> Blob(Guid itemId, string content, string url = null)
+		{
+			return new BlobReference<PageProfile>(_siteId, itemId, new PageProfile(url, content, content));
+		}
 
 		private void Guard(Trigger trigger, string message)
 		{

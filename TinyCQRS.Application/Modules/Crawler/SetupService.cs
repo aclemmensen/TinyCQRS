@@ -17,5 +17,10 @@ namespace TinyCQRS.Application.Modules.Crawler
 		{
 			_dispatcher.Dispatch(command);
 		}
+
+		public void CreateSpellcheckConfiguration(CreateSpellcheckConfiguration command)
+		{
+			_dispatcher.Dispatch(command);
+		}
 	}
 }

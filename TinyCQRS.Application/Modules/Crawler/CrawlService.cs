@@ -1,21 +1,21 @@
 ﻿using System;
 using System.Linq;
-using TinyCQRS.Application.Util;
 using TinyCQRS.Contracts;
 using TinyCQRS.Contracts.Commands;
 using TinyCQRS.Contracts.Models;
 using TinyCQRS.Contracts.Services;
+using TinyCQRS.Domain;
 using TinyCQRS.Infrastructure;
 using TinyCQRS.ReadModel.Interfaces;
 
 namespace TinyCQRS.Application.Modules.Crawler
 {
-	public class SiteCrawlService : ISiteCrawlService
+	public class CrawlService : ICrawlService
 	{
 		private readonly ICommandDispatcher _dispatcher;
 		private readonly IReadModelRepository<Site> _read;
 
-		public SiteCrawlService(ICommandDispatcher dispatcher, IReadModelRepository<Site> read)
+		public CrawlService(ICommandDispatcher dispatcher, IReadModelRepository<Site> read)
 		{
 			_dispatcher = dispatcher;
 			_read = read;

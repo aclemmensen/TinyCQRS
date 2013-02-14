@@ -14,7 +14,7 @@ namespace TinyCQRS.IntegrationClient
 		private readonly string _name;
 		private readonly string _root;
 		private readonly ISiteService _siteService;
-		private readonly ISiteCrawlService _crawlService;
+		private readonly ICrawlService _crawlService;
 		private readonly ISetupService _setupService;
 		private readonly Crawler _crawler;
 		private Guid _crawlId;
@@ -34,7 +34,7 @@ namespace TinyCQRS.IntegrationClient
 
 			_siteService = container.Resolve<ISiteService>();
 			_setupService = container.Resolve<ISetupService>();
-			_crawlService = container.Resolve<ISiteCrawlService>();
+			_crawlService = container.Resolve<ICrawlService>();
 
 			_crawler = new Crawler(_crawlService, container.Resolve<ILogger>());
 		}
