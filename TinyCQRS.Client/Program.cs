@@ -7,7 +7,9 @@ using TinyCQRS.Application.Crosscutting;
 using TinyCQRS.Contracts.Commands;
 using TinyCQRS.Contracts.Services;
 using TinyCQRS.Domain.Interfaces;
+using TinyCQRS.Domain.Models.QualityAssurance;
 using TinyCQRS.Infrastructure;
+using TinyCQRS.Infrastructure.Persistence;
 using TinyCQRS.ReadModel.Infrastructure;
 
 namespace TinyCQRS.Client
@@ -46,6 +48,45 @@ namespace TinyCQRS.Client
 			Console.WriteLine("rbeak");
 		}
 
+		static void PerformanceTest()
+		{
+			var container = Container(new DatabaseServiceInstaller());
+
+			container.Register(Component.For<IBlobStorage>().ImplementedBy<MemoryBlobStorage>().IsDefault());
+
+			_eventStore = container.Resolve<IEventStore>();
+			var repository = container.Resolve<IRepository<Crawl>>();
+
+			var siteId = Guid.NewGuid();
+
+			var setupService = container.Resolve<ISetupService>();
+			setupService.CreateNewSite(new CreateNewSite(siteId, "Perftest", "Perftest"));
+
+			var msgbus = container.Resolve<IMessageBus>();
+			msgbus.ClearSubscribers();
+
+			var id = Guid.NewGuid();
+			var pageid = Guid.NewGuid();
+
+			var crawl = new Crawl(id, siteId, DateTime.UtcNow);
+			crawl.StartCrawl("Perftest crawler", DateTime.UtcNow);
+			var blobstorage = container.Resolve<IBlobStorage>();
+
+			crawl.AddNewPage(pageid, "perftesturl", "nocontent", DateTime.UtcNow, blobstorage);
+
+			repository.Save(crawl);
+
+			var now = DateTime.UtcNow;
+
+			for (var i = 0; i < 10000000; i++)
+			{
+				crawl.PageCheckedWithoutChange(pageid, now);
+				repository.Save(crawl);
+			}
+
+			Console.WriteLine("break");
+		}
+
 		static IWindsorContainer Container(IWindsorInstaller installer)
 		{
 			var container = new WindsorContainer();
@@ -79,7 +120,8 @@ namespace TinyCQRS.Client
 				}
 			});
 
-			SiteCrawlServiceTest();
+			//SiteCrawlServiceTest();
+			PerformanceTest();
 		}
     }
 }

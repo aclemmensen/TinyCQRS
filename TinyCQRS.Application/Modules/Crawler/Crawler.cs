@@ -11,7 +11,7 @@ using TinyCQRS.Infrastructure;
 
 namespace TinyCQRS.Application.Modules.Crawler
 {
-	public class Crawler : IConsume<CrawlOrdered>
+	public class Crawler //: IConsume<CrawlOrdered>
 	{
 		private readonly ICrawlService _service;
 		private readonly ILogger _logger;

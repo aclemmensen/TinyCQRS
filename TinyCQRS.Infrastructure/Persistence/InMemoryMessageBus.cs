@@ -50,6 +50,11 @@ namespace TinyCQRS.Infrastructure.Persistence
 			}
         }
 
+		public void ClearSubscribers()
+		{
+			_subscribers.Clear();
+		}
+
         public void Notify(Event @event)
         {
 			// Do lazy initialization to avoid problems with circular dependencies.

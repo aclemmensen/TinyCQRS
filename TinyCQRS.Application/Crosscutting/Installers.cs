@@ -60,6 +60,11 @@ namespace TinyCQRS.Application.Crosscutting
 		private readonly string _readConnstr;
 		private readonly string _mongoConnstr;
 
+		public DatabaseServiceInstaller() : this(@"Data Source=.\SQLExpress;Integrated Security=true;Database=TinyCQRS.Events", @"Data Source=.\SQLExpress;Integrated Security=true;Database=TinyCQRS.ReadModelDenormalized", @"mongodb://localhost")
+		{
+			
+		}
+
 		public DatabaseServiceInstaller(string eventConnstr, string readConnstr, string mongoConnstr)
 		{
 			_eventConnstr = eventConnstr;
@@ -72,8 +77,8 @@ namespace TinyCQRS.Application.Crosscutting
 			base.Install(container, store);
 
 			container.Register(Component.For<IBlobStorage>().ImplementedBy<MongoBlobStorage>().DependsOn(new { connstr = _mongoConnstr }));
-			//container.Register(Component.For<IEventStore>().ImplementedBy<OrmLiteEventStore>().DependsOn(new { connstr = _eventConnstr })/*.LifeStyle.HybridPerWebRequestPerThread()*/);
-			container.Register(Component.For<IEventStore>().ImplementedBy<MongoEventStore>().DependsOn(new { connstr = _mongoConnstr })/*.LifeStyle.HybridPerWebRequestPerThread()*/);
+			container.Register(Component.For<IEventStore>().ImplementedBy<OrmLiteEventStore>().DependsOn(new { connstr = _eventConnstr })/*.LifeStyle.HybridPerWebRequestPerThread()*/);
+			//container.Register(Component.For<IEventStore>().ImplementedBy<MongoEventStore>().DependsOn(new { connstr = _mongoConnstr })/*.LifeStyle.HybridPerWebRequestPerThread()*/);
 
 			container.Register(
 				//Component.For(typeof (IReadModelRepository<>)).ImplementedBy(typeof (CachingReadModelRepository<>)).LifeStyle.PerWebRequest,

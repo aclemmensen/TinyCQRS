@@ -58,10 +58,10 @@ namespace TinyCQRS.Infrastructure.Persistence
 			using (var tx = conn.OpenTransaction())
 			{
 				conn.Insert(new EventEnvelope(@event));
-				
+
 				if (@event.Version > 1)
 				{
-					conn.Update<AggregateStatus>(new {@event.Version}, s => s.AggregateId == @event.AggregateId);
+					conn.Update<AggregateStatus>(new { @event.Version }, s => s.AggregateId == @event.AggregateId);
 				}
 				else
 				{
