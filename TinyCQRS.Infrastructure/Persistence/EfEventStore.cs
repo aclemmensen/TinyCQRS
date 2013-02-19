@@ -24,7 +24,7 @@ namespace TinyCQRS.Infrastructure.Persistence
 
 		public int Processed { get; private set; }
 
-		public IEnumerable<Event> GetEventsFor(Guid id)
+		public IEnumerable<Event> GetEventsFor<T>(Guid id) where T : IEventSourced
 		{
 			if (!_cache.ContainsKey(id))
 			{
@@ -39,14 +39,17 @@ namespace TinyCQRS.Infrastructure.Persistence
 			return _cache[id];
 		}
 
-		public Event GetLastEventFor(Guid id)
+		public int GetVersionFor<T>(Guid id) where T : IEventSourced
 		{
 			if (_cache.ContainsKey(id))
 			{
-				return _cache[id].LastOrDefault();
+				var lastOrDefault = _cache[id].LastOrDefault();
+				if (lastOrDefault != null) return lastOrDefault.Version;
 			}
 
-			return GetEventsFor(id).LastOrDefault();
+			var orDefault = GetEventsFor<T>(id).LastOrDefault();
+			if (orDefault != null) return orDefault.Version;
+			return 0;
 		}
 
 		public void StoreEvent<TAggregate>(Event @event) where TAggregate : IEventSourced

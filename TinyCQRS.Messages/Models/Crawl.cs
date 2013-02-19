@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 
 namespace TinyCQRS.Contracts.Models
 {
-	public class Crawl : Entity
+	public class Crawl : Dto
 	{
 		public virtual Guid SiteId { get; set; }
 		public virtual Site Site { get; set; }

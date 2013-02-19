@@ -26,7 +26,14 @@ namespace TinyCQRS.Infrastructure.Persistence
 		{
 			if (!_data.ContainsKey(reference.AggregateId))
 			{
-				_data[reference.AggregateId] = new Dictionary<Guid, object>();
+				try
+				{
+					_data[reference.AggregateId] = new Dictionary<Guid, object>();
+				}
+				catch (Exception e)
+				{
+					Console.WriteLine("FAIL: {0}", e.Message);
+				}
 			}
 
 			_data[reference.AggregateId][reference.ItemId] = payload;
@@ -35,6 +42,29 @@ namespace TinyCQRS.Infrastructure.Persistence
 		public void Remove(BlobReference reference)
 		{
 			throw new NotImplementedException();
+		}
+	}
+
+	public class NullBlobStorage : IBlobStorage
+	{
+		public T Get<T>(BlobReference reference)
+		{
+			return Activator.CreateInstance<T>();
+		}
+
+		public T Find<T>(BlobReference reference)
+		{
+			return Activator.CreateInstance<T>();
+		}
+
+		public void Save<T>(BlobReference reference, T payload)
+		{
+			
+		}
+
+		public void Remove(BlobReference reference)
+		{
+			
 		}
 	}
 

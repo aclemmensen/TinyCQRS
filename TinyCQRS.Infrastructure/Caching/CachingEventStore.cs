@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using TinyCQRS.Contracts;
 using TinyCQRS.Domain;
 using TinyCQRS.Domain.Interfaces;
@@ -10,38 +12,38 @@ namespace TinyCQRS.Infrastructure.Caching
 	public class CachingEventStore : IEventStore
 	{
 		private readonly IEventStore _innerEventStore;
-		private readonly Dictionary<Guid,List<Event>> _data = new Dictionary<Guid, List<Event>>();
-		private readonly Dictionary<Guid,Event> _lastEvent = new Dictionary<Guid, Event>();
+		private readonly ConcurrentDictionary<Guid, List<Event>> _data = new ConcurrentDictionary<Guid, List<Event>>();
+		private readonly ConcurrentDictionary<Guid, int> _lastVersion = new ConcurrentDictionary<Guid, int>();
 
-		public int Processed { get; private set; }
+		public int Processed { get { return _processed; } }
+		private int _processed;
 
 		public CachingEventStore(IEventStore innerEventStore)
 		{
 			_innerEventStore = innerEventStore;
 		}
 
-		public IEnumerable<Event> GetEventsFor(Guid id)
+		public IEnumerable<Event> GetEventsFor<T>(Guid id) where T : IEventSourced
 		{
-			return Get(id);
+			return Get<T>(id);
 		}
 
-		public Event GetLastEventFor(Guid id)
+		public int GetVersionFor<T>(Guid id) where T : IEventSourced
 		{
-			Event e;
-			return !_lastEvent.TryGetValue(id, out e) ? null : e;
+			int version;
+			return !_lastVersion.TryGetValue(id, out version) ? 0 : version;
 		}
 
 		public void StoreEvent<TAggregate>(Event @event) where TAggregate : IEventSourced
 		{
-			Processed++;
-
+			Interlocked.Increment(ref _processed);
 			_innerEventStore.StoreEvent<TAggregate>(@event);
-			_lastEvent[@event.AggregateId] = @event;
+			_lastVersion[@event.AggregateId] = @event.Version;
 
-			Add(@event);
+			Add<TAggregate>(@event);
 		}
 
-		private void Add(Event @event)
+		private void Add<T>(Event @event)
 		{
 			if (!_data.ContainsKey(@event.AggregateId))
 			{
@@ -51,11 +53,11 @@ namespace TinyCQRS.Infrastructure.Caching
 			_data[@event.AggregateId].Add(@event);
 		}
 
-		private IEnumerable<Event> Get(Guid id)
+		private IEnumerable<Event> Get<T>(Guid id) where T : IEventSourced
 		{
 			if (!_data.ContainsKey(id))
 			{
-				_data[id] = new List<Event>(_innerEventStore.GetEventsFor(id));
+				_data[id] = new List<Event>(_innerEventStore.GetEventsFor<T>(id));
 			}
 
 			return _data[id];

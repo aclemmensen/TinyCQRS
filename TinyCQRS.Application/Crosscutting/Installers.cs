@@ -39,7 +39,7 @@ namespace TinyCQRS.Application.Crosscutting
 				Component.For(typeof(IRepository<>)).ImplementedBy(typeof(CachingRepository<>)),
 				Component.For(typeof(IRepository<>)).ImplementedBy(typeof(EventedRepository<>)));
 
-			container.Register(Component.For(typeof(IEventStore)).ImplementedBy(typeof(CachingEventStore))/*.LifeStyle.HybridPerWebRequestPerThread()*/);
+			container.Register(Component.For(typeof(IEventStore)).ImplementedBy(typeof(DispatchingEventStore)));
 
 			container.Register(
 				Classes.FromAssemblyContaining<SiteReadModelGenerator>().BasedOn<IConsume>().WithServiceAllInterfaces(),//.Configure(x => x /*.LifeStyle.HybridPerWebRequestPerThread()*/),
@@ -77,11 +77,12 @@ namespace TinyCQRS.Application.Crosscutting
 			base.Install(container, store);
 
 			container.Register(Component.For<IBlobStorage>().ImplementedBy<MongoBlobStorage>().DependsOn(new { connstr = _mongoConnstr }));
-			container.Register(Component.For<IEventStore>().ImplementedBy<OrmLiteEventStore>().DependsOn(new { connstr = _eventConnstr })/*.LifeStyle.HybridPerWebRequestPerThread()*/);
-			//container.Register(Component.For<IEventStore>().ImplementedBy<MongoEventStore>().DependsOn(new { connstr = _mongoConnstr })/*.LifeStyle.HybridPerWebRequestPerThread()*/);
+			//container.Register(Component.For<IEventStore>().ImplementedBy<OrmLiteEventStore>().DependsOn(new { connstr = _eventConnstr })/*.LifeStyle.HybridPerWebRequestPerThread()*/);
+			//container.Register(Component.For<IEventStore>().ImplementedBy<MongoEventStore>().DependsOn(new { connstr = _mongoConnstr }));
+			//container.Register(Component.For<IEventStore>().ImplementedBy<RedisEventStore>());
 
 			container.Register(
-				//Component.For(typeof (IReadModelRepository<>)).ImplementedBy(typeof (CachingReadModelRepository<>)).LifeStyle.PerWebRequest,
+				Component.For(typeof (IReadModelRepository<>)).ImplementedBy(typeof (CachingReadModelRepository<>)),
 				Component.For(typeof(IReadModelRepository<>)).ImplementedBy(typeof(MongoReadModelRepository<>)).DependsOn(new { connstr = _mongoConnstr })/*.LifeStyle.HybridPerWebRequestPerThread()*/);
 				//Component.For(typeof (IReadModelRepository<>)).ImplementedBy(typeof (OrmLiteReadModelRepository<>)).DependsOn(new { connstr = _readConnstr }).LifeStyle.HybridPerWebRequestPerThread);
 				//Component.For(typeof (IReadModelRepository<>)).ImplementedBy(typeof (EfReadModelRepository<>)).LifeStyle.PerWebRequest);

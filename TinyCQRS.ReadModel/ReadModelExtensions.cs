@@ -6,32 +6,13 @@ namespace TinyCQRS.ReadModel
 {
 	public static class ReadModelExtensions
 	{
-		 public static string KeyName(this IReadModel model)
-		 {
-			 if (model is Entity)
-			 {
-				 return "GlobalId";
-			 }
 
-			 return (model is Dto) 
-				 ? "LocalId" 
-				 : "_id";
-		 }
-
-		public static object Id(this IReadModel model)
-		{
-			var name = model.KeyName();
-			var property = model.GetType().GetProperty(name);
-			
-			return property.GetValue(model);
-		}
-
-		public static T GetOrCreate<T>(this IReadModelRepository<T> repository, object id) where T : class, IReadModel, new()
+		public static T GetOrCreate<T>(this IReadModelRepository<T> repository, Guid id) where T : Dto, new()
 		{
 			return repository.Find(id) ?? new T();
 		}
 
-		public static void Update<T>(this IReadModelRepository<T> repository, object id, Action<T> action) where T : class, IReadModel, new()
+		public static void Update<T>(this IReadModelRepository<T> repository, Guid id, Action<T> action) where T : Dto, new()
 		{
 			var dto = repository.Get(id);
 
@@ -41,7 +22,7 @@ namespace TinyCQRS.ReadModel
 			repository.Commit();
 		}
 
-		public static void Create<T>(this IReadModelRepository<T> repository, Action<T> action) where T : class, IReadModel, new()
+		public static void Create<T>(this IReadModelRepository<T> repository, Action<T> action) where T : Dto, new()
 		{
 			var dto = repository.Create();
 			
@@ -51,27 +32,16 @@ namespace TinyCQRS.ReadModel
 			repository.Commit();
 		}
 
-		public static void CreateOrUpdate<T>(this IReadModelRepository<T> repository, object id, Action<T> action = null) where T : class, IReadModel, new()
+		public static void CreateOrUpdate<T>(this IReadModelRepository<T> repository, Guid id, Action<T> action = null) where T : Dto, new()
 		{
 			var model = repository.GetOrCreate(id);
 
 			if(action != null)
 				action(model);
 
-			if (model.Id == null)
+			if (model.Id == Guid.Empty)
 			{
-				// TODO: This is ugly.
-				var entity = model as Entity;
-				if (entity != null)
-				{
-					entity.GlobalId = (Guid)id;
-				}
-				var dto = model as Dto;
-				if (dto != null)
-				{
-					dto.LocalId = (long) id;
-				}
-
+				model.Id = id;
 				repository.Add(model);
 			}
 			else

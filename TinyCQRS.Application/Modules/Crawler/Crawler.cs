@@ -11,7 +11,7 @@ using TinyCQRS.Infrastructure;
 
 namespace TinyCQRS.Application.Modules.Crawler
 {
-	public class Crawler //: IConsume<CrawlOrdered>
+	public class Crawler : IConsume<CrawlOrdered>
 	{
 		private readonly ICrawlService _service;
 		private readonly ILogger _logger;
@@ -84,8 +84,8 @@ namespace TinyCQRS.Application.Modules.Crawler
 			
 			var r = new Random();
 			var lower = r.Next(1, 1000);
-			var upper = lower + 38000;
-			var lucky = r.Next(1, 1000);
+			var upper = lower + 7000;
+			var lucky = r.Next(upper, upper + 1000);
 
 			for (var i = lower; i < upper; i++)
 			{

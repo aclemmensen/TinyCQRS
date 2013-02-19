@@ -7,7 +7,7 @@ using TinyCQRS.ReadModel.Interfaces;
 
 namespace TinyCQRS.ReadModel.Infrastructure
 {
-    public class InMemoryReadModelRepository<T> : IReadModelRepository<T> where T : Entity, new()
+    public class InMemoryReadModelRepository<T> : IReadModelRepository<T> where T : Dto, new()
     {
         private readonly Dictionary<object,T> _data = new Dictionary<object, T>();
 
@@ -18,18 +18,18 @@ namespace TinyCQRS.ReadModel.Infrastructure
 
 	    public void Add(T dto)
         {
-            _data[dto.Id ?? dto.GlobalId] = dto;
+            _data[dto.Id] = dto;
         }
 
 	    public void Update(T dto)
 	    {
-		    _data.Remove(dto.Id ?? dto.GlobalId);
-		    _data[dto.Id ?? dto.GlobalId] = dto;
+		    _data.Remove(dto.Id);
+		    _data[dto.Id] = dto;
 	    }
 
 	    public void Delete(T dto)
 	    {
-		    _data.Remove(dto.Id ?? dto.GlobalId);
+		    _data.Remove(dto.Id);
 	    }
 
 	    public void Commit()

@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 
 namespace TinyCQRS.Contracts.Models
 {
-	public class Site : Entity
+	public class Site : Dto
 	{
 		public virtual string Name { get; set; }
 
@@ -25,21 +25,21 @@ namespace TinyCQRS.Contracts.Models
 		}
 	}
 
-	public class SiteIdentity : Entity
+	public class SiteIdentity : Dto
 	{
 		public string Name { get; set; }
 		public string Root { get; set; }
 		public int PageCount { get; set; }
 	}
 
-	public class PageIdentity : Entity
+	public class PageIdentity : Dto
 	{
 		public string Title { get; set; }
 		public string Url { get; set; }
 		public float Score { get; set; }
 	}
 
-	public class SiteOverview : Entity
+	public class SiteOverview : Dto
 	{
 		public int PageCount { get; set; }
 
@@ -62,7 +62,7 @@ namespace TinyCQRS.Contracts.Models
 		}
 	}
 
-	public class SiteInventory : Entity
+	public class SiteInventory : Dto
 	{
 		public ICollection<SiteInventoryPageInfo> Pages { get; set; }
 

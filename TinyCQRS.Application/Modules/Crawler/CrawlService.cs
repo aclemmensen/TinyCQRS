@@ -60,11 +60,11 @@ namespace TinyCQRS.Application.Modules.Crawler
 				Pages = site.Pages.Select(x => new PageInfo
 				{
 					ContentHash = HashingHelper.Hash(x.Content),
-					PageId = x.GlobalId,
+					PageId = x.Id,
 					Url = x.Url
 				}),
 				Root = site.Root,
-				SiteId = site.GlobalId
+				SiteId = site.Id
 			};
 		}
 	}

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading;
 using TinyCQRS.Contracts;
 using TinyCQRS.Domain;
 using TinyCQRS.Domain.Interfaces;
@@ -9,12 +11,12 @@ namespace TinyCQRS.Infrastructure.Persistence
 {
     public class InMemoryEventStore : IEventStore, IDisposable
     {
-        private readonly Dictionary<Guid,List<Event>> _events = new Dictionary<Guid, List<Event>>();
+		private readonly ConcurrentDictionary<Guid, List<Event>> _events = new ConcurrentDictionary<Guid, List<Event>>();
 
 	    public int Processed { get { return _processed; } }
 	    private int _processed;
 
-	    public IEnumerable<Event> GetEventsFor(Guid id)
+		public IEnumerable<Event> GetEventsFor<T>(Guid id) where T : IEventSourced
         {
 			var events = new List<Event>();
 
@@ -23,19 +25,18 @@ namespace TinyCQRS.Infrastructure.Persistence
 	            events = _events[id];
             }
 
-		    Console.WriteLine("Fetching {0} events", events.Count);
-
 		    return events;
         }
 
-		public Event GetLastEventFor(Guid id)
+		public int GetVersionFor<T>(Guid id) where T : IEventSourced
 		{
-			return GetEventsFor(id).LastOrDefault();
+			var last = GetEventsFor<T>(id).LastOrDefault();
+			return last == null ? 0 : last.Version;
 		}
 
         public void StoreEvent<TAggregate>(Event @event) where TAggregate : IEventSourced
         {
-	        _processed++;
+	        Interlocked.Increment(ref _processed);
 
             if (!_events.ContainsKey(@event.AggregateId))
             {

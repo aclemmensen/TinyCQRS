@@ -8,7 +8,7 @@ using TinyCQRS.ReadModel.Interfaces;
 
 namespace TinyCQRS.ReadModel.Infrastructure
 {
-	public class OrmLiteReadModelRepository<T> : IReadModelRepository<T> where T : class, IReadModel, new()
+	public class OrmLiteReadModelRepository<T> : IReadModelRepository<T> where T : Dto, new()
 	{
 		private readonly string _connstr;
 		private readonly OrmLiteConnectionFactory _connfac;

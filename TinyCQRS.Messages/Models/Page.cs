@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 
 namespace TinyCQRS.Contracts.Models
 {
-	public class Page : Entity
+	public class Page : Dto
 	{
 		public virtual string Url { get; set; }
 		

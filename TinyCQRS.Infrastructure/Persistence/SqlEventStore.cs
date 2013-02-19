@@ -20,14 +20,15 @@ namespace TinyCQRS.Infrastructure.Persistence
 			_connstr = connstr;
 		}
 
-		public IEnumerable<Event> GetEventsFor(Guid id)
+		public IEnumerable<Event> GetEventsFor<T>(Guid id) where T : IEventSourced
 		{
-			return GetEventCollectionFor(id);
+			return GetEventCollectionFor<T>(id);
 		}
 
-		public Event GetLastEventFor(Guid id)
+		public int GetVersionFor<T>(Guid id) where T : IEventSourced
 		{
-			return GetEventCollectionFor(id).LastOrDefault();
+			var last = GetEventCollectionFor<T>(id).LastOrDefault();
+			return last == null ? 0 : last.Version;
 		}
 
 		public void StoreEvent<TAggregate>(Event @event) where TAggregate : IEventSourced
@@ -61,7 +62,7 @@ namespace TinyCQRS.Infrastructure.Persistence
 
 		}
 
-		private IEnumerable<Event> GetEventCollectionFor(Guid id)
+		private IEnumerable<Event> GetEventCollectionFor<T>(Guid id) where T : IEventSourced
 		{
 			return 
 				Query(

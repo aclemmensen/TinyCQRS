@@ -30,19 +30,19 @@ namespace TinyCQRS.Infrastructure.Persistence
         }
 
 
-	    public IEnumerable<Event> GetEventsFor(Guid id)
+	    public IEnumerable<Event> GetEventsFor<T>(Guid id) where T : IEventSourced
         {
-            return _eventStore.GetEventsFor(id);
+            return _eventStore.GetEventsFor<T>(id);
         }
 
-	    public Event GetLastEventFor(Guid id)
+	    public int GetVersionFor<T>(Guid id) where T : IEventSourced
 	    {
-		    return _eventStore.GetLastEventFor(id);
+		    return _eventStore.GetVersionFor<T>(id);
 	    }
 
-	    public void StoreEvent<TAggregate>(Event @event) where TAggregate : IEventSourced
+	    public void StoreEvent<T>(Event @event) where T : IEventSourced
         {
-            _eventStore.StoreEvent<TAggregate>(@event);
+            _eventStore.StoreEvent<T>(@event);
             _bus.Notify(@event);
         }
     }

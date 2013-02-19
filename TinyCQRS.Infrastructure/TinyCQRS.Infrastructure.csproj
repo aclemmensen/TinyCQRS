@@ -67,6 +67,9 @@
     <Reference Include="ServiceStack.OrmLite.SqlServer">
       <HintPath>..\packages\ServiceStack.OrmLite.SqlServer.3.9.35\lib\ServiceStack.OrmLite.SqlServer.dll</HintPath>
     </Reference>
+    <Reference Include="ServiceStack.Redis">
+      <HintPath>..\packages\ServiceStack.Redis.3.9.35\lib\net35\ServiceStack.Redis.dll</HintPath>
+    </Reference>
     <Reference Include="ServiceStack.Text">
       <HintPath>..\packages\ServiceStack.Text.3.9.35\lib\net35\ServiceStack.Text.dll</HintPath>
     </Reference>
@@ -101,6 +104,7 @@
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Caching\CachingEventStore.cs" />
+    <Compile Include="Persistence\CachingRepository.cs" />
     <Compile Include="Persistence\DispatchingEventStore.cs" />
     <Compile Include="Persistence\EfEventStore.cs" />
     <Compile Include="Persistence\EsentEventStore.cs" />
@@ -114,6 +118,7 @@
     <Compile Include="Persistence\MongoBlobStorage.cs" />
     <Compile Include="Persistence\MongoEventStore.cs" />
     <Compile Include="Persistence\OrmLiteEventStore.cs" />
+    <Compile Include="Persistence\RedisEventStore.cs" />
     <Compile Include="Persistence\SqlEventStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Persistence\InMemoryEventStore.cs" />

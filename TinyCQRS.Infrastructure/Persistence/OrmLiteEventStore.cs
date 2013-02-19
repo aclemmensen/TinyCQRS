@@ -21,6 +21,8 @@ namespace TinyCQRS.Infrastructure.Persistence
 
 		public int Processed { get; private set; }
 
+		public OrmLiteEventStore() : this(@"Data Source=.\SQLExpress;Integrated Security=true;Database=TinyCQRS.Events") { }
+
 		public OrmLiteEventStore(string connstr)
 		{
 			_connfac = new OrmLiteConnectionFactory(connstr, true, new SqlServerOrmLiteDialectProvider())
@@ -35,7 +37,7 @@ namespace TinyCQRS.Infrastructure.Persistence
 			}
 		}
 
-		public IEnumerable<Event> GetEventsFor(Guid id)
+		public IEnumerable<Event> GetEventsFor<T>(Guid id) where T : IEventSourced
 		{
 			using (var conn = _connfac.OpenDbConnection())
 			{
@@ -43,12 +45,12 @@ namespace TinyCQRS.Infrastructure.Persistence
 			}
 		}
 
-		public Event GetLastEventFor(Guid id)
+		public int GetVersionFor<T>(Guid id) where T : IEventSourced
 		{
 			using (var conn = _connfac.OpenDbConnection())
 			{
-				var result = conn.QuerySingle<EventEnvelope>(GetLastEvent, new { id });
-				return result == null ? null : result.Event;
+				var result = conn.SingleOrDefault<AggregateStatus>("AggregateId = {0}".Params(id));
+				return result == null ? 0 : result.Version;
 			}
 		}
 
@@ -58,6 +60,7 @@ namespace TinyCQRS.Infrastructure.Persistence
 			using (var tx = conn.OpenTransaction())
 			{
 				conn.Insert(new EventEnvelope(@event));
+				Processed++;
 
 				if (@event.Version > 1)
 				{

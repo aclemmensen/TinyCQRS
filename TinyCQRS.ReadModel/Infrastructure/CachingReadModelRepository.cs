@@ -7,7 +7,7 @@ using TinyCQRS.ReadModel.Interfaces;
 
 namespace TinyCQRS.ReadModel.Infrastructure
 {
-	public class CachingReadModelRepository<T> : IReadModelRepository<T> where T : Entity, new()
+	public class CachingReadModelRepository<T> : IReadModelRepository<T> where T : Dto, new()
 	{
 		private readonly IReadModelRepository<T> _innerRepository;
 		private readonly Dictionary<object,T> _cache = new Dictionary<object, T>();
@@ -20,7 +20,7 @@ namespace TinyCQRS.ReadModel.Infrastructure
 		public T Find(object id)
 		{
 			T obj;
-			if (!_cache.TryGetValue(id, out obj))
+			if (!_cache.TryGetValue(id, out obj) || _cache[id] == null)
 			{
 				_cache[id] = _innerRepository.Find(id);
 			}
@@ -52,7 +52,7 @@ namespace TinyCQRS.ReadModel.Infrastructure
 
 		public void Add(T dto)
 		{
-			_cache[dto.Id()] = dto;
+			_cache[dto] = dto;
 			_innerRepository.Add(dto);
 		}
 
@@ -63,7 +63,7 @@ namespace TinyCQRS.ReadModel.Infrastructure
 
 		public void Delete(T dto)
 		{
-			_cache.Remove(dto.Id());
+			_cache.Remove(dto.Id);
 			_innerRepository.Delete(dto);
 		}
 

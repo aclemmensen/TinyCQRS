@@ -18,14 +18,12 @@ namespace TinyCQRS.ReadModel.Generators
 
 		public void Process(SiteCreatedEvent @event)
 		{
-			var site = _sites.Create();
-			
-			site.GlobalId = @event.AggregateId;
-			site.Name = @event.Name;
-			site.Root = @event.Root;
-
-			_sites.Add(site);
-			_sites.Commit();
+			_sites.CreateOrUpdate(@event.AggregateId, x =>
+			{
+				x.Id = @event.AggregateId;
+				x.Name = @event.Name;
+				x.Root = @event.Root;
+			});
 		}
 	}
 }

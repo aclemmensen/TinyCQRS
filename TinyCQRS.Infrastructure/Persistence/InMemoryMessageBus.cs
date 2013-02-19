@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using ReflectionMagic;
 using TinyCQRS.Contracts;
+using TinyCQRS.Contracts.Events;
 
 namespace TinyCQRS.Infrastructure.Persistence
 {
@@ -13,6 +15,7 @@ namespace TinyCQRS.Infrastructure.Persistence
 		private readonly Dictionary<Type, List<IConsume>> _subscribers = new Dictionary<Type, List<IConsume>>();
 		private IRelease<IEnumerable<IConsume>> _consumers;
 		private bool _initialized;
+		private bool _cleared;
 
 		public InMemoryMessageBus(IResolver resolver, ILogger logger)
 		{
@@ -22,7 +25,7 @@ namespace TinyCQRS.Infrastructure.Persistence
 
 		private void Initialize()
 		{
-			if (_initialized) return;
+			if (_initialized || _cleared) return;
 
 			_consumers = _resolver.ResolveAll<IConsume>();
 			Subscribe(_consumers.Instance.ToArray());
@@ -53,6 +56,7 @@ namespace TinyCQRS.Infrastructure.Persistence
 		public void ClearSubscribers()
 		{
 			_subscribers.Clear();
+			_cleared = true;
 		}
 
         public void Notify(Event @event)
@@ -60,27 +64,32 @@ namespace TinyCQRS.Infrastructure.Persistence
 			// Do lazy initialization to avoid problems with circular dependencies.
 			// This is definitely not pretty, but it'll ensure the entire dependency
 			// chain can be resolved before we hook up event consumers.
-			if (!_initialized)
+			if (!_cleared && !_initialized)
 			{
 				Initialize();
 			}
+			
+			if (!_subscribers.Any())
+			{
+				return;
+			}
 
-	        List<IConsume> subscribers;
-	        if (!_subscribers.TryGetValue(@event.GetType(), out subscribers)) return;
-	        
+			List<IConsume> subscribers;
+			if (!_subscribers.TryGetValue(@event.GetType(), out subscribers)) return;
+
 			foreach (var subscriber in subscribers)
-	        {
-		        _logger.Log("Consumer {0} processing {1}", subscriber.GetType().Name, @event.GetType().Name);
+			{
+				_logger.Log("Consumer {0} processing {1}", subscriber.GetType().Name, @event.GetType().Name);
 
-		        var method = subscriber.GetType().GetMethod("Process", new[] { @event.GetType() });
-		        method.Invoke(subscriber, new[] { @event });
-		        //subscriber.AsDynamic().Process(@event);
-	        }
+				var method = subscriber.GetType().GetMethod("Process", new[] { @event.GetType() });
+				method.Invoke(subscriber, new object[] { @event });
+			}
         }
 
 		public void Dispose()
 		{
-			_consumers.Dispose();
+			if(_consumers != null)
+				_consumers.Dispose();
 		}
     }
 }

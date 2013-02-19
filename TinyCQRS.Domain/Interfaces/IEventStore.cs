@@ -8,8 +8,8 @@ namespace TinyCQRS.Domain.Interfaces
     {
 		int Processed { get; }
 
-	    IEnumerable<Event> GetEventsFor(Guid id);
-	    Event GetLastEventFor(Guid id);
-	    void StoreEvent<TAggregate>(Event @event) where TAggregate : IEventSourced;
+	    IEnumerable<Event> GetEventsFor<T>(Guid id) where T : IEventSourced;
+	    int GetVersionFor<T>(Guid id) where T : IEventSourced;
+	    void StoreEvent<T>(Event @event) where T : IEventSourced;
     }
 }

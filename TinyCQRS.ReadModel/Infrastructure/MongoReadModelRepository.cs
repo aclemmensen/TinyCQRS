@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson;
@@ -10,7 +11,7 @@ using TinyCQRS.ReadModel.Interfaces;
 
 namespace TinyCQRS.ReadModel.Infrastructure
 {
-	public class MongoReadModelRepository<T> : IReadModelRepository<T> where T : class, IReadModel, new()
+	public class MongoReadModelRepository<T> : IReadModelRepository<T> where T : Dto, new()
 	{
 		private readonly MongoCollection<T> _collection;
 
@@ -26,18 +27,10 @@ namespace TinyCQRS.ReadModel.Infrastructure
 
 		public T Find(object id)
 		{
-			IMongoQuery q;
+			var q = Query<T>.EQ(x => x.Id, id);
+			var r = _collection.FindOne(q);
 
-			if (id is Guid)
-			{
-				q = Query.EQ(KeyName(), new BsonBinaryData((Guid)id));
-			}
-			else
-			{
-				q = Query.EQ(KeyName(), id.ToString());
-			}
-
-			return _collection.FindOne(q);
+			return r;
 		}
 
 		public T Get(object id)
@@ -64,9 +57,6 @@ namespace TinyCQRS.ReadModel.Infrastructure
 
 		public void Add(T dto)
 		{
-			dto.Id = dto.Id();
-			
-
 			_collection.Insert(dto);
 		}
 
@@ -77,7 +67,7 @@ namespace TinyCQRS.ReadModel.Infrastructure
 
 		public void Delete(T dto)
 		{
-			_collection.Remove(Query.EQ(KeyName(), dto.Id.ToString()));
+			 _collection.Remove(Query.EQ("Id", dto.Id.ToString()));
 		}
 
 		public void Commit()
@@ -88,18 +78,6 @@ namespace TinyCQRS.ReadModel.Infrastructure
 		public T Create()
 		{
 			return new T();
-		}
-
-		private static string KeyName()
-		{
-			if (typeof(Entity).IsAssignableFrom(typeof(T)))
-			{
-				return "GlobalId";
-			}
-
-			return typeof(Dto).IsAssignableFrom(typeof(T)) 
-				? "LocalId" 
-				: "_id";
 		}
 	}
 }

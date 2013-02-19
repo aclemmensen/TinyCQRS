@@ -26,7 +26,7 @@ namespace TinyCQRS.ReadModel.Generators
 		{
 			var crawl = _crawls.Create();
 
-			crawl.GlobalId = @event.AggregateId;
+			crawl.Id = @event.AggregateId;
 			crawl.SiteId = @event.SiteId;
 			crawl.OrderTime = @event.TimeOfOrder;
 			crawl.Status = CrawlStatus.Ordered;
@@ -56,7 +56,7 @@ namespace TinyCQRS.ReadModel.Generators
 			var last = _crawls
 				.Where(x => 
 					x.SiteId == crawl.SiteId && 
-					x.GlobalId != @event.AggregateId && 
+					x.Id != @event.AggregateId && 
 					x.Status == CrawlStatus.Completed)
 				.OrderByDescending(x => x.CompletionTime)
 				.FirstOrDefault();
@@ -74,7 +74,7 @@ namespace TinyCQRS.ReadModel.Generators
 
 				var currentPages = _pages.Where(x => x.SiteId == crawl.SiteId);
 
-				foreach (var page in currentPages.Where(x => disappeared.Contains(x.GlobalId)).ToList())
+				foreach (var page in currentPages.Where(x => disappeared.Contains(x.Id)).ToList())
 				{
 					_pages.Delete(page);
 				}

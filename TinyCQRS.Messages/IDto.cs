@@ -2,24 +2,9 @@
 
 namespace TinyCQRS.Contracts
 {
-	public interface IReadModel
+	public abstract class Dto
 	{
-		object Id { get; set; }
-	}
-
-	public abstract class ReadModelBase : IReadModel
-	{
-		public object Id { get; set; }
-	}
-
-	public abstract class Dto : ReadModelBase
-	{
-		public long LocalId { get; set; }
-	}
-
-	public abstract class Entity : ReadModelBase
-	{
-		public Guid GlobalId { get; set; }
+		public Guid Id { get; set; }
 	}
 
 	public abstract class ValueObject

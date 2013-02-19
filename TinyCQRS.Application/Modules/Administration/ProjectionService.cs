@@ -20,16 +20,7 @@ namespace TinyCQRS.Application.Modules.Administration
 
 		public void RegenerateForSite(RegenerateForSite command)
 		{
-			var events = _eventStore.GetEventsFor(command.AggregateId);
-
-			// But crawls aren't attached to the site aggregate, so this won't even work.
-			// Also, the RMGs are recreating DTOs that already exist, causing duplicate ID
-			// errors.
-
-			foreach (var @event in events)
-			{
-				_bus.Notify(@event);
-			}
+			
 		}
 	}
 }

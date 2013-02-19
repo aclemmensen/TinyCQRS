@@ -23,13 +23,13 @@ namespace TinyCQRS.ReadModel.Generators
 		{
 			var site = _read.Create();
 
-			site.GlobalId = @event.AggregateId;
-			site.Name = @event.Name;
-			site.Root = @event.Root;
-			site.PageCount = 0;
-
-			_read.Add(site);
-			_read.Commit();
+			_read.CreateOrUpdate(@event.AggregateId, x =>
+			{
+				x.Id = @event.AggregateId;
+				x.Name = @event.Name;
+				x.Root = @event.Root;
+				x.PageCount = 0;
+			});
 		}
 
 		public void Process(CrawlCompleted @event)

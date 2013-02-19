@@ -35,8 +35,7 @@ namespace TinyCQRS.ReadModel.Infrastructure
 
 		protected override void OnModelCreating(DbModelBuilder modelBuilder)
 		{
-			modelBuilder.Entity<Entity>().HasKey(x => x.GlobalId);
-			modelBuilder.Entity<Dto>().HasKey(x => x.LocalId);
+			modelBuilder.Entity<Dto>().HasKey(x => x.Id);
 
 			modelBuilder.Entity<PageCheck>()
 				.HasRequired(x => x.Page)

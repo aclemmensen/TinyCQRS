@@ -24,11 +24,7 @@ namespace TinyCQRS.IntegrationClient
 			_name = name;
 			_root = root;
 			var container = new WindsorContainer();
-			container.Install(
-				new DatabaseServiceInstaller(
-					@"Data Source=.\SQLExpress;Integrated Security=true;Database=TinyCQRS.Events",
-					@"Data Source=.\SQLExpress;Integrated Security=true;Database=TinyCQRS.ReadModelDenormalized",
-					@"mongodb://localhost"));
+			container.Install(new DatabaseServiceInstaller());
 
 			container.Register(Component.For<ILogger>().ImplementedBy<ConsoleLogger>().IsDefault());
 
